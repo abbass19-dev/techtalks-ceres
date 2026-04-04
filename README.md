@@ -1,4 +1,4 @@
-# 🥗 NutriGuide - The Interactive Nutrition Analyzer
+# 🥗 CÉRES - The Interactive Nutrition Analyzer
 
 **Understand Your Food Instantly and Track Your Goals.**
 
@@ -65,6 +65,3 @@ NutriGuide is a full-stack nutrition analysis web app built with **Next.js**, de
     Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
-
-
-"# TechTalks-NutriGuide" 

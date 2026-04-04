@@ -2,7 +2,7 @@
 
 **Understand Your Food Instantly and Track Your Goals.**
 
-NutriGuide is a full-stack nutrition analysis web app built with **Next.js**, designed to help users interactively analyze the nutritional breakdown of their meals and to track their daily goals.
+CÉRES is a full-stack nutrition analysis web app built with **Next.js**, designed to help users interactively analyze the nutritional breakdown of their meals and to track their daily goals.
 
 ---
 

@@ -31,6 +31,7 @@
   - ❌ **NEVER** add comments explaining obvious variable assignments or simple operations.
   - ❌ **NEVER** add comments for standard patterns (e.g., `// Try-catch block`, `// Return result`).
   - ❌ **NEVER** add section divider comments unless code is genuinely complex enough to require visual separation.
+  - ❌ **NEVER** add block comments explaining standard framework boilerplate (e.g., explaining why Next.js needs DB connection caching).
   - ✅ **DO** write self-documenting code with clear variable/function names instead of comments.
   - ✅ **DO** add JSDoc for all exported functions with `@param`, `@returns`, `@throws`.
   - ✅ **DO** add inline comments only for non-obvious business rules, edge cases, or workarounds.

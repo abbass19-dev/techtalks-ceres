@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChangeEvent, ClipboardEvent, KeyboardEvent, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  ClipboardEvent,
+  KeyboardEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const OTP_LENGTH = 6;
 
@@ -10,7 +17,10 @@ export default function OtpPage() {
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
-  const isComplete = useMemo(() => otp.every((digit) => digit !== ""), [otp]);
+  const isComplete = useMemo(
+    () => otp.every((digit) => digit !== ""),
+    [otp]
+  );
 
   const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -60,7 +70,11 @@ export default function OtpPage() {
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
 
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, OTP_LENGTH);
+
     if (!pastedData) return;
 
     const newOtp = Array(OTP_LENGTH).fill("");
@@ -83,84 +97,74 @@ export default function OtpPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F5F5F5]">
-      <section className="grid min-h-screen w-full bg-white md:grid-cols-[520px_1fr]">
-        
-        {/* LEFT IMAGE */}
-        <div className="relative h-screen w-full">
-          <Image
-            src="/images/otpimage.png"
-            alt="CÉRES OTP visual"
-            fill
-            priority
-            className="object-cover object-[center_20%]"
-          />
-        </div>
+    <main className="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
 
-       
-        <div className="flex items-center justify-center px-6 py-12 md:px-10">
-          <div className="w-full max-w-[420px] text-center">
-            
-            <h1 className="text-[32px] font-medium leading-tight text-[#1A1A1A] md:text-[36px]">
-              Verify Your Account
-            </h1>
+      {/* LEFT SIDE */}
+      <div className="w-full lg:w-1/2 h-[40vh] lg:h-full relative">
+        <Image
+          src="/images/otpimage.png"
+          alt="CÉRES OTP visual"
+          fill
+          priority
+          className="object-contain"
+        />
+      </div>
 
-            <p className="mx-auto mt-4 max-w-[320px] text-[13px] leading-[1.5] text-[#8E8E8E]">
-              We&apos;ve sent a 6-digit verification code to your registered Lebanese mobile number{" "}
-              <span className="font-semibold text-[#5A5A5A]">+961 ** *** 456</span>
-            </p>
+      {/* RIGHT SIDE */}
+      <div className="w-full lg:w-1/2 h-[60vh] lg:h-full flex items-center justify-center px-6 sm:px-12 bg-white">
 
-            {/* OTP INPUTS */}
-            <div className="mt-10 flex items-center justify-center gap-3">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => {
-                    inputRefs.current[index] = el;
-                  }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleChange(index, e)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={handlePaste}
-                  className="h-[56px] w-[56px] rounded-full bg-[#D9D9D9] text-center text-[20px] font-semibold text-[#1A1A1A] outline-none transition focus:bg-white focus:ring-2 focus:ring-[#06B159]/20"
-                />
-              ))}
-            </div>
+        <div className="w-full max-w-[420px] text-center">
 
-            {/* BUTTON */}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!isComplete}
-              className="mt-12 inline-flex h-[52px] w-full items-center justify-center rounded-full bg-[#06B159] px-6 text-[20px] font-semibold text-black transition hover:brightness-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Verify &amp; Continue
-            </button>
+          <h1 className="text-[24px] sm:text-[28px] md:text-[32px] font-medium text-[#1A1A1A]">
+            Verify Your Account
+          </h1>
 
-            {/* LINKS */}
-            <p className="mt-5 text-[14px] text-[#4D4D4D]">
-              Didn&apos;t receive a code?{" "}
-              <button className="font-medium text-[#245CFF] hover:underline">
-                Resend OTP
-              </button>
-            </p>
+          <p className="mx-auto mt-3 max-w-[320px] text-[12px] text-[#8E8E8E] sm:text-[13px]">
+            We&apos;ve sent a 6-digit verification code to your registered Lebanese mobile number{" "}
+            <span className="font-semibold text-[#5A5A5A]">
+              +961 ** *** 456
+            </span>
+          </p>
 
-            <div className="mt-4">
-              <Link
-                href="/signin"
-                className="inline-flex items-center gap-2 text-[14px] font-medium text-[#1A1A1A] hover:opacity-75"
-              >
-                ← Back to Sign In
-              </Link>
-            </div>
-
+          {/* OTP */}
+          <div className="mx-auto mt-6 grid w-full max-w-[320px] grid-cols-6 gap-2 sm:gap-3">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(index, e)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={handlePaste}
+                className="aspect-square w-full rounded-full bg-[#D9D9D9] text-center font-semibold focus:ring-2 focus:ring-[#06B159]/20"
+              />
+            ))}
           </div>
-        </div>
 
-      </section>
+          <button
+            onClick={handleSubmit}
+            disabled={!isComplete}
+            className="mt-6 w-full h-[48px] rounded-full bg-[#06B159] font-semibold text-white disabled:opacity-60"
+          >
+            Verify & Continue
+          </button>
+
+          <p className="mt-4 text-sm">
+            Didn’t receive a code?{" "}
+            <span className="text-blue-600 cursor-pointer">Resend OTP</span>
+          </p>
+
+          <Link href="/signin" className="block mt-3 text-sm">
+            ← Back to Sign In
+          </Link>
+
+        </div>
+      </div>
     </main>
   );
 }

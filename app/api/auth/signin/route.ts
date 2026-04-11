@@ -31,7 +31,8 @@ export async function POST(req: Request) {
     });
 
     return response;
-  } catch (error) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (error: any) {
+    console.error("SIGNIN_ERROR:", error);
+    return NextResponse.json({ error: "Internal server error", message: error.message }, { status: 500 });
   }
 }

@@ -7,6 +7,14 @@ export const userRepository = {
     return User.findOne({ email }).exec();
   },
 
+  async findByResetToken(token: string) {
+    await connectToDatabase();
+    return User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    }).exec();
+  },
+
   async create(payload: {
     firstName: string;
     lastName: string;
@@ -16,5 +24,10 @@ export const userRepository = {
   }) {
     await connectToDatabase();
     return User.create(payload);
+  },
+
+  async updateUser(id: string, updateData: any) {
+    await connectToDatabase();
+    return User.findByIdAndUpdate(id, updateData, { new: true }).exec();
   },
 };

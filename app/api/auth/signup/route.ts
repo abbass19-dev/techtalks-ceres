@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { signinSchema } from "@/lib/validations/auth";
+import { signupSchema } from "@/lib/validations/auth";
 import { authService } from "@/lib/services/auth.service";
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body: unknown = await req.json();
+    const body: unknown = await request.json();
+    const parsed = signupSchema.safeParse(body);
 
-    const parsed = signinSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Invalid input", details: parsed.error.format() },
@@ -14,14 +14,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await authService.signin(parsed.data);
+    const result = await authService.signup(parsed.data);
 
     if (result.error || !result.token) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      return NextResponse.json(
+        { error: result.error || "Signup failed" },
+        { status: result.error === "User already exists" ? 409 : 400 },
+      );
     }
 
-    const response = NextResponse.json({ success: true, user: result.user });
-
+    const response = NextResponse.json(
+      { success: true, user: result.user },
+      { status: 201 },
+    );
     response.cookies.set("token", result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -33,8 +38,9 @@ export async function POST(req: Request) {
     return response;
   } catch (error: unknown) {
     const message =
-      error instanceof Error ? error.message : "Internal server error";
-    console.error("SIGNIN_ERROR:", message);
+      error instanceof Error ? error.message : "Something went wrong.";
+    console.error("Signup error:", message);
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,8 +1,31 @@
 import { z } from "zod";
 
 export const signinSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }).trim().toLowerCase(),
-  password: z.string().min(6, { message: "Password must be at least 6 characters long." }),
+  email: z
+    .string()
+    .email({ message: "Invalid email address." })
+    .trim()
+    .toLowerCase(),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long." }),
+});
+export const signupSchema = z.object({
+  firstName: z.string().min(1, { message: "First name is required." }).trim(),
+  lastName: z.string().min(1, { message: "Last name is required." }).trim(),
+  email: z
+    .string()
+    .email({ message: "Invalid email address." })
+    .trim()
+    .toLowerCase(),
+  phoneNumber: z
+    .string()
+    .min(1, { message: "Phone number is required." })
+    .trim(),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long." }),
 });
 
+export type SignupInput = z.infer<typeof signupSchema>;
 export type SigninInput = z.infer<typeof signinSchema>;

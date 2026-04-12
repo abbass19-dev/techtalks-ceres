@@ -1,16 +1,18 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Leftside from "../components/leftside";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    phoneNumber: 0,
+    phoneNumber: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -19,12 +21,31 @@ export default function SignupPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    setSuccess("Account created successfully. Redirecting...");
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "Unable to create account.");
+        return;
+      }
+
+      setSuccess("Account created successfully. Redirecting...");
+      setTimeout(() => router.push("/home"), 1200);
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      console.error("Signup error:", err);
+    }
   };
 
   return (

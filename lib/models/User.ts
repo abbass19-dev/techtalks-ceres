@@ -23,6 +23,11 @@ const userSchema = new Schema(
       required: true,
       trim: true,
     },
+    phoneNumber: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     weight: {
       type: Number,
       required: false,
@@ -38,7 +43,7 @@ const userSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

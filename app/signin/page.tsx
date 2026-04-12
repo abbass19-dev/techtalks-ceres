@@ -72,9 +72,20 @@ export default function SigninPage() {
               />
             </div>
             <div className="flex flex-col space-y-1.5 w-full">
-              <label htmlFor="password" className="text-sm text-gray-700 ml-1">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="password"
+                  className="text-sm text-gray-700 ml-1"
+                >
+                  Password
+                </label>
+                <Link
+                  href="/reset-password"
+                  className="text-[#3b82f6] text-[12px]"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
               <input
                 id="password"
                 type="password"

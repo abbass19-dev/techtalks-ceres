@@ -52,14 +52,14 @@ export default function SignupPage() {
     <div className="min-h-screen w-full flex bg-white font-sans overflow-hidden">
       <Leftside />
       <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-6 sm:px-6 sm:py-8">
-        <div className="w-full max-w-100 flex flex-col items-center">
+        <div className="w-full max-w-[400px] flex flex-col items-center">
           <Image src="/assets/logo.png" alt="Logo" width={130} height={130} />
 
           <div className="text-center mb-4 w-full">
             <h1 className="text-[24px] md:text-[26px] font-medium text-gray-900 mb-2">
               Create Your Account
             </h1>
-            <p className="text-[12px] text-slate-500 max-w-62.5 mx-auto leading-relaxed">
+            <p className="text-[12px] text-slate-500 max-w-[250px] mx-auto leading-relaxed">
               Join CÉRES and start managing your health data with precision.
             </p>
           </div>

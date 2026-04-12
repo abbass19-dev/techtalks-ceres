@@ -31,7 +31,7 @@ export default function LandingPage() {
             <ul className="flex items-center gap-7 text-[15px]">
               <li className="group relative pb-1">
                 <Link
-                  href="/login"
+                  href="/signin"
                   className="font-medium text-gray-700 transition-colors hover:text-[#00A859]"
                 >
                   Login

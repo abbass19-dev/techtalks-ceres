@@ -1,16 +1,18 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Leftside from "../components/leftside";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    phoneNumber: 0,
+    phoneNumber: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -19,26 +21,45 @@ export default function SignupPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    setSuccess("Account created successfully. Redirecting...");
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "Unable to create account.");
+        return;
+      }
+
+      setSuccess("Account created successfully. Redirecting...");
+      setTimeout(() => router.push("/home"), 1200);
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      console.error("Signup error:", err);
+    }
   };
 
   return (
     <div className="min-h-screen w-full flex bg-white font-sans overflow-hidden">
       <Leftside />
       <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-6 sm:px-6 sm:py-8">
-        <div className="w-full max-w-[400px] flex flex-col items-center">
+        <div className="w-full max-w-100 flex flex-col items-center">
           <Image src="/assets/logo.png" alt="Logo" width={130} height={130} />
 
           <div className="text-center mb-4 w-full">
             <h1 className="text-[24px] md:text-[26px] font-medium text-gray-900 mb-2">
               Create Your Account
             </h1>
-            <p className="text-[12px] text-slate-500 max-w-[250px] mx-auto leading-relaxed">
+            <p className="text-[12px] text-slate-500 max-w-62.5 mx-auto leading-relaxed">
               Join CÉRES and start managing your health data with precision.
             </p>
           </div>

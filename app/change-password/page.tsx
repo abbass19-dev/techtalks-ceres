@@ -33,7 +33,7 @@ export default function ChangePasswordPage() {
       <Leftside />
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-[400px] flex flex-col items-center">
-          <Image src="/assets/logo.png" alt="Logo" width={150} height={150} />
+          <Image src="/images/logo.png" alt="Logo" width={150} height={150} />
 
           <div className="text-center mb-8 w-full">
             <h1 className="text-[30px] font-medium text-gray-900 mb-3">

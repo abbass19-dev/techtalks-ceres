@@ -53,7 +53,7 @@ export default function SignupPage() {
       <Leftside />
       <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-6 sm:px-6 sm:py-8">
         <div className="w-full max-w-[400px] flex flex-col items-center">
-          <Image src="/assets/logo.png" alt="Logo" width={130} height={130} />
+          <Image src="/images/logo.png" alt="Logo" width={130} height={130} />
 
           <div className="text-center mb-4 w-full">
             <h1 className="text-[24px] md:text-[26px] font-medium text-gray-900 mb-2">

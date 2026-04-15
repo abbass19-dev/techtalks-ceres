@@ -1,5 +1,6 @@
 ﻿import Image from "next/image";
 import Link from "next/link";
+import Navbar from "./components/Navbar";
 import ProcessCards from "./components/ProcessCards";
 import DoctorCards from "./components/DoctorCards";
 import Footer from "./components/Footer";
@@ -14,41 +15,12 @@ export default function LandingPage() {
             alt="Hero Background"
             fill
             priority
-            className="object-cover object-[65%_60%] sm:object-[50%_60%] object-center"
+            className="object-cover object-center sm:object-[50%_60%] md:object-[65%_60%]"
           />
-          <div className="absolute inset-0 bg-linear-to-b from-white/20 via-white/40 to-[#f4f8fb] pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-white/20 via-white/40 to-[#f4f8fb]" />
         </div>
 
-        <header className="absolute top-0 left-0 z-50 w-full bg-linear-to-b from-white/90 to-white/30">
-          <nav className="mx-auto flex h-17.5 w-full max-w-410 items-center justify-between px-2">
-            <Image
-              src="/assets/logo.png"
-              alt="Logo"
-              width={120}
-              height={70}
-              className="object-contain"
-            />
-            <ul className="flex items-center gap-7 text-[15px]">
-              <li className="group relative pb-1">
-                <Link
-                  href="/signin"
-                  className="font-medium text-gray-700 transition-colors hover:text-[#00A859]"
-                >
-                  Login
-                </Link>
-                <div className="absolute bottom-0 left-0 h-0.75 w-0 rounded-b-2xl bg-linear-to-r from-[#006C49] to-[#00A859] transition-all duration-300 group-hover:w-full" />
-              </li>
-              <li>
-                <Link
-                  href="/signup"
-                  className="mr-6 rounded-xl bg-[#00A859] px-5 py-2.5 font-semibold text-white shadow-sm transition-all hover:bg-[#00964D]"
-                >
-                  Sign Up
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </header>
+        <Navbar />
 
         <section className="relative z-10 mx-auto flex w-full max-w-360 flex-1 flex-col justify-center px-8 pt-32 pb-16">
           <div className="max-w-150">
@@ -61,6 +33,7 @@ export default function LandingPage() {
               Instantly analyze any recipe and reach your health goals faster
               with the world&apos;s most advanced digital apothecary.
             </p>
+
             <Link href="/signup" className="inline-block">
               <button className="rounded-xl bg-[#00A859] px-8 py-3.5 text-[16px] font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#00964D]">
                 Start Now
@@ -85,6 +58,7 @@ export default function LandingPage() {
             Three simple steps to transform your relationship with food.
           </p>
         </div>
+
         <ProcessCards />
       </section>
 
@@ -100,6 +74,7 @@ export default function LandingPage() {
             </p>
           </div>
         </div>
+
         <DoctorCards />
       </section>
 

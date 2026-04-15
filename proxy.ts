@@ -13,7 +13,7 @@ export async function proxy(req: NextRequest) {
     if (isProtectedApi) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/signin", req.url));
+    return NextResponse.next();
   }
 
   try {
@@ -23,7 +23,7 @@ export async function proxy(req: NextRequest) {
     if (isProtectedApi) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/signin", req.url));
+    return NextResponse.next();
   }
 }
 

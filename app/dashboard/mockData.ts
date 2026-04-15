@@ -15,7 +15,28 @@ export const balance = [
 ];
 
 export const meals = [
-  { id: 1, name: "Quinoa Bowl", calories: 420 },
-  { id: 2, name: "Salmon", calories: 680 },
-  { id: 3, name: "Greek Salad", calories: 210 },
+  {
+    id: 1,
+    name: "Quinoa Power Bowl",
+    calories: 420,
+    type: "Breakfast",
+    time: "8:30 AM",
+    image: "/images/quinoa.jpeg",
+  },
+  {
+    id: 2,
+    name: "Atlantic Salmon",
+    calories: 680,
+    type: "Lunch",
+    time: "1:15 PM",
+    image: "/images/salmon.jpeg",
+  },
+  {
+    id: 3,
+    name: "Greek Garden Salad",
+    calories: 210,
+    type: "Snack",
+    time: "4:00 PM",
+    image: "/images/salad.jpeg",
+  },
 ];

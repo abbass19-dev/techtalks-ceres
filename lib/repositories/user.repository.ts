@@ -26,6 +26,11 @@ export const userRepository = {
     return User.create(payload);
   },
 
+  async findById(id: string) {
+    await connectToDatabase();
+    return User.findById(id).exec();
+  },
+
   async updateUser(id: string, updateData: any) {
     await connectToDatabase();
     return User.findByIdAndUpdate(id, updateData, { new: true }).exec();

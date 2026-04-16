@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
-
+//hi
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 

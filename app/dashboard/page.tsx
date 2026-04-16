@@ -1,10 +1,48 @@
+"use client";
+
 import Navbar from "../components/Navbar";
-import { stats, balance, meals } from "./mockData";
 import Footer from "../components/Footer";
-import { Plus, Lightbulb } from "lucide-react";
+import { stats, balance, meals as mockMeals } from "./mockData";
+import { Plus, Lightbulb, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
-  const statStyles = {
+  const router = useRouter();
+
+  const [userMeals, setUserMeals] = useState<any[]>([]);
+  const [goals, setGoals] = useState<any>(null);
+
+  useEffect(() => {
+    const storedMeals = JSON.parse(localStorage.getItem("meals") || "[]");
+    const storedGoals = JSON.parse(localStorage.getItem("goals") || "null");
+
+    if (storedMeals.length > 0) {
+      setUserMeals(storedMeals);
+    } else {
+      setUserMeals(mockMeals);
+    }
+
+    if (storedGoals) {
+      setGoals(storedGoals);
+    }
+  }, []);
+
+  // 🗑️ DELETE FUNCTION
+  const handleDelete = (id: number) => {
+    const updatedMeals = userMeals.filter((meal) => meal.id !== id);
+
+    setUserMeals(updatedMeals);
+    localStorage.setItem("meals", JSON.stringify(updatedMeals));
+  };
+
+  const statStyles: Record<
+    string,
+    {
+      color: string;
+      bar: string;
+    }
+  > = {
     Calories: {
       color: "text-[#111827]",
       bar: "bg-[#0E8A5F]",
@@ -31,8 +69,9 @@ export default function DashboardPage() {
     <div className="bg-[#F5F7F6] min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="pt-10 px-4 md:px-6 lg:px-10 flex-1 space-y-6 max-w-[1400px] mx-auto pb-12">
-
+      {/* 👇 padding-bottom مهم للموبايل */}
+      <div className="pt-10 px-4 md:px-6 lg:px-10 flex-1 space-y-6 max-w-[1400px] mx-auto pb-24">
+        
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -50,12 +89,18 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex gap-3">
-            <button className="bg-[#00A859] hover:bg-[#00964D] text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm transition flex items-center gap-2">
+            <button
+              onClick={() => router.push("/analyze-meal")}
+              className="bg-[#00A859] hover:bg-[#00964D] text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm transition flex items-center gap-2"
+            >
               <Plus size={16} />
               Analyze New Meal
             </button>
 
-            <button className="bg-white text-black border border-gray-300 hover:border-[#00A859] hover:text-[#00A859] px-5 py-2.5 rounded-xl text-sm font-medium transition">
+            <button
+              onClick={() => router.push("/set-goals")}
+              className="bg-white text-black border border-gray-300 hover:border-[#00A859] hover:text-[#00A859] px-5 py-2.5 rounded-xl text-sm font-medium transition"
+            >
               Set Goals
             </button>
           </div>
@@ -66,10 +111,21 @@ export default function DashboardPage() {
           {stats.map((s) => {
             const style = statStyles[s.title];
 
+            // 🔥 dynamic targets from goals
+            let target = s.target;
+
+            if (goals) {
+              if (s.title === "Calories") target = `/${goals.calories}`;
+              if (s.title === "Protein") target = `/${goals.protein}g`;
+              if (s.title === "Carbs") target = `/${goals.carbs}g`;
+              if (s.title === "Fat") target = `/${goals.fat}g`;
+              if (s.title === "Fiber") target = `/${goals.fiber}g`;
+            }
+
             return (
               <div
                 key={s.title}
-                className="bg-white p-4 rounded-xl border border-gray-100 "
+                className="bg-white p-4 rounded-xl border border-gray-100"
               >
                 <p className="text-xs text-black uppercase tracking-wide">
                   {s.title}
@@ -79,7 +135,7 @@ export default function DashboardPage() {
                   {s.value}
                 </h2>
 
-                <p className="text-xs text-gray-400">{s.target}</p>
+                <p className="text-xs text-gray-400">{target}</p>
 
                 <div className="w-full bg-gray-200 h-1.5 rounded-full mt-3">
                   <div
@@ -97,7 +153,6 @@ export default function DashboardPage() {
 
           {/* LEFT */}
           <div className="xl:col-span-2 bg-white p-6 rounded-2xl border border-gray-100">
-
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold text-[#111827] text-lg">
                 Nutritional Balance Index
@@ -140,17 +195,17 @@ export default function DashboardPage() {
                 Recent Meals
               </h2>
 
-              {meals.map((meal) => (
+              {userMeals.map((meal) => (
                 <div
                   key={meal.id}
                   className="flex items-center justify-between py-3 border-b last:border-none"
                 >
                   <div className="flex items-center gap-3">
                     <img
-  src={meal.image}
-  alt={meal.name}
-  className="w-10 h-10 rounded-lg object-cover"
-/>
+                      src={meal.image}
+                      alt={meal.name}
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
 
                     <div>
                       <p className="text-sm font-medium text-gray-800">
@@ -162,14 +217,23 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <span className="text-sm text-green-800">
-                    {meal.calories} kcal
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-green-800">
+                      {meal.calories} kcal
+                    </span>
+
+                    <button
+                      onClick={() => handleDelete(meal.id)}
+                      className="text-gray-400 hover:text-red-500 transition"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
 
               <div className="flex justify-center">
-                <button className="text-xs text-[#006C49] mt-3 font-medium transition hover:text-[#00A859] active:scale-95">
+                <button className="text-xs text-[#006C49] mt-3 font-medium hover:text-[#00A859]">
                   View All Activity
                 </button>
               </div>
@@ -177,9 +241,8 @@ export default function DashboardPage() {
 
             {/* DAILY TIP */}
             <div className="bg-gradient-to-br from-[#00A859] to-[#006C49] text-white p-6 rounded-2xl">
-              
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb size={18} className="opacity-90" />
+                <Lightbulb size={18} />
                 <h2 className="font-semibold">Daily Tip</h2>
               </div>
 

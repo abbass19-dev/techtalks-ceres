@@ -120,19 +120,19 @@ export default function SetGoalsPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col items-start gap-3">
+            <div className="mt-8 flex flex-col items-stretch sm:items-start gap-4">
               <button
                 onClick={handleSave}
-                className="bg-[#00A859] hover:bg-[#00964D] text-white px-6 py-3 rounded-xl text-sm font-medium transition"
+                className="bg-[#00A859] hover:bg-[#00964D] text-white px-8 py-4 rounded-xl text-sm font-semibold transition shadow-md active:scale-[0.98] w-full sm:w-auto"
               >
                 Save Goals
               </button>
 
               {message && (
                 <p
-                  className={`text-sm ${
+                  className={`text-sm font-medium ${
                     message.includes("saved")
-                      ? "text-green-600"
+                      ? "text-[#00A859]"
                       : "text-red-500"
                   }`}
                 >

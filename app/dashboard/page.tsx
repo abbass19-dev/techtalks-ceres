@@ -28,7 +28,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  // 🗑️ DELETE FUNCTION
   const handleDelete = (id: number) => {
     const updatedMeals = userMeals.filter((meal) => meal.id !== id);
 
@@ -69,10 +68,7 @@ export default function DashboardPage() {
     <div className="bg-[#F5F7F6] min-h-screen flex flex-col">
       <Navbar />
 
-      {/* 👇 padding-bottom مهم للموبايل */}
-      <div className="pt-10 px-4 md:px-6 lg:px-10 flex-1 space-y-6 max-w-[1400px] mx-auto pb-24">
-        
-        {/* HEADER */}
+      <div className="pt-10 px-4 md:px-6 lg:px-10 flex-1 space-y-6 w-full mx-auto pb-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#111827]">
@@ -106,12 +102,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div className="grid  sm:grid-cols-5 xl:grid-cols-5 gap-4">
           {stats.map((s) => {
             const style = statStyles[s.title];
 
-            // 🔥 dynamic targets from goals
             let target = s.target;
 
             if (goals) {
@@ -148,10 +142,7 @@ export default function DashboardPage() {
           })}
         </div>
 
-        {/* MAIN */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-          {/* LEFT */}
           <div className="xl:col-span-2 bg-white p-6 rounded-2xl border border-gray-100">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold text-[#111827] text-lg">
@@ -181,15 +172,12 @@ export default function DashboardPage() {
 
             <p className="text-xs text-gray-400 mt-4">
               Your micro-nutrient balance is{" "}
-              <span className="text-[#00A859] font-medium">optimal</span>.
-              Focus on Calcium-rich foods for your next meal.
+              <span className="text-[#00A859] font-medium">optimal</span>. Focus
+              on Calcium-rich foods for your next meal.
             </p>
           </div>
 
-          {/* RIGHT */}
           <div className="space-y-6">
-
-            {/* RECENT MEALS */}
             <div className="bg-white p-6 rounded-2xl border border-gray-100">
               <h2 className="font-semibold mb-4 text-[#111827]">
                 Recent Meals
@@ -239,7 +227,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* DAILY TIP */}
             <div className="bg-gradient-to-br from-[#00A859] to-[#006C49] text-white p-6 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 <Lightbulb size={18} />
@@ -251,10 +238,8 @@ export default function DashboardPage() {
                 your morning bowl.
               </p>
             </div>
-
           </div>
         </div>
-
       </div>
 
       <Footer />

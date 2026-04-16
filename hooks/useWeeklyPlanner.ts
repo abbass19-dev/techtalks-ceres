@@ -1,20 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  DragEndEvent,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import {DragEndEvent,PointerSensor,TouchSensor,useSensor,useSensors,} from "@dnd-kit/core";
 import { ScheduleState } from "@/lib/utils/Types";
-import {
-  getCurrentWeek,
-  formatDate,
-  filterCards,
-  getUnscheduledCards,
-  moveCard,
-  removeCard,
-} from "@/lib/utils/plannerUtils";
+import {getCurrentWeek,formatDate,filterCards,getUnscheduledCards,moveCard,removeCard,} from "@/lib/utils/plannerUtils";
 import { mockCards } from "@/lib/data/mockData";
 
 export function useWeeklyPlanner() {
@@ -46,7 +33,6 @@ export function useWeeklyPlanner() {
         console.error("Could not load planner state", e);
       }
     } else {
-      // Initial default state if no local storage found
       setSchedule({
         [formatDate(weekDates[0])]: ["meal-5"],
         [formatDate(weekDates[1])]: ["meal-6", "meal-1", "meal-2"],

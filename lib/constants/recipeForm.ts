@@ -1,23 +1,4 @@
-export interface RecipeForm {
-  name: string;
-  description: string;
-  category: string;
-  servings: string;
-  prepTime: string;
-  cookTime: string;
-}
-
-export interface Ingredient {
-  id: number;
-  name: string;
-  quantity: string;
-  unit: string;
-}
-
-export interface Instruction {
-  id: number;
-  text?: string;
-}
+import { Ingredient, Instruction, RecipeForm } from "../utils/Types";
 
 export const CATEGORIES = [
   "Breakfast",

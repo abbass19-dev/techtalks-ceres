@@ -2,7 +2,7 @@
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { stats, balance, meals as mockMeals } from "./mockData";
+import { stats, balance, meals as mockMeals } from "@/lib/data/mockData";
 import { Plus, Lightbulb, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

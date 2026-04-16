@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {Utensils,Clock,BookOpen,ListOrdered,ImagePlus,Plus,X,ChevronDown,} from "lucide-react";
-import {CATEGORIES,UNITS,RecipeForm,Ingredient,Instruction,createIngredient,createInstruction,initialRecipe,updateIngredientById,removeIngredientById,updateInstructionById,removeInstructionById,} from "@/lib/constants/recipeForm";
+import {CATEGORIES,UNITS,createIngredient,createInstruction,initialRecipe,updateIngredientById,removeIngredientById,updateInstructionById,removeInstructionById,} from "@/lib/constants/recipeForm";
+import { RecipeForm, Ingredient, Instruction } from "@/lib/utils/Types";
 
 function useFoodSearch(query: string, enabled: boolean) {
   const [results, setResults] = useState<string[]>([]);

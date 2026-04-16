@@ -139,17 +139,23 @@ export default function Navbar() {
               const isActive = pathname === link.href;
 
               return (
-                <li key={link.label}>
+                <li key={link.label} className="group relative">
                   <Link
                     href={link.href}
-                    className={`transition-colors ${
+                    className={`pb-1 transition-colors ${
                       isActive
-                        ? "font-semibold text-green-700"
-                        : "hover:text-green-700"
+                        ? "text-[#00A859]"
+                        : "text-slate-600 hover:text-[#00A859]"
                     }`}
                   >
                     {link.label}
                   </Link>
+
+                  <span
+                    className={`absolute left-0 -bottom-1 h-[2px] rounded-full bg-[#00A859] transition-all duration-300 ${
+                      isActive ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
+                  />
                 </li>
               );
             })}

@@ -14,5 +14,25 @@ export type NavbarUser = {
   email: string;
   image: string;
 };
+export interface RecipeForm {
+  name: string;
+  description: string;
+  category: string;
+  servings: string;
+  prepTime: string;
+  cookTime: string;
+}
+
+export interface Ingredient {
+  id: number;
+  name: string;
+  quantity: string;
+  unit: string;
+}
+
+export interface Instruction {
+  id: number;
+  text?: string;
+}
 
 export type ScheduleState = Record<string, string[]>;

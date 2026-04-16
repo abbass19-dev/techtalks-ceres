@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import ProcessCards from "./components/ProcessCards";
 import DoctorCards from "./components/DoctorCards";

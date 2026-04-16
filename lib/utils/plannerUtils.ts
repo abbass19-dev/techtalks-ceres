@@ -98,3 +98,9 @@ export function removeCard(
     [dateKey]: (schedule[dateKey] || []).filter((id) => id !== cardId),
   };
 }
+
+export const dayName = new Date().toLocaleDateString("en-US", {
+  weekday: "long",
+  month: "short",
+  day: "numeric",
+});

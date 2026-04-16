@@ -21,11 +21,11 @@ const cards = [
 
 export default function ProcessCards() {
   return (
-    <div className="mt-12 grid w-full grid-cols-1 gap-6 px-7 mx-auto lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
+    <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 sm:px-6">
   {cards.map((card) => (
     <div
       key={card.step}
-      className="group relative flex flex-col justify-between rounded-2xl bg-white px-8 py-15 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      className="group relative flex flex-col justify-between rounded-3xl bg-white px-8 py-10 md:py-12 shadow-sm border border-gray-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
     >
       <span className="select-none text-[3rem] font-black leading-none text-[#006C49]/10">
         {card.step}

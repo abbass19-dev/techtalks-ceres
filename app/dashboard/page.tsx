@@ -6,12 +6,37 @@ import { stats, balance, meals as mockMeals } from "@/lib/data/mockData";
 import { Plus, Lightbulb, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NavbarUser } from "@/lib/utils/Types";
+import { dayName } from "@/lib/utils/plannerUtils";
 
 export default function DashboardPage() {
   const router = useRouter();
 
   const [userMeals, setUserMeals] = useState<any[]>([]);
   const [goals, setGoals] = useState<any>(null);
+  const [user, setUser] = useState<NavbarUser | null>(null);
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data?.user) {
+          setUser({
+            firstName: data.user.firstName,
+            lastName: data.user.lastName,
+            email: data.user.email,
+            image: data.user.image || "/images/logo.png",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load user:", error);
+      }
+    }
+
+    loadUser();
+  }, []);
 
   useEffect(() => {
     const storedMeals = JSON.parse(localStorage.getItem("meals") || "[]");
@@ -69,40 +94,40 @@ export default function DashboardPage() {
       <Navbar />
 
       <div className="pt-10 px-4 md:px-6 lg:px-10 flex-1 space-y-6 w-full mx-auto pb-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#111827]">
-              Welcome back, <span className="text-[#006C49]">Julian!</span>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#111827] tracking-tight">
+              Welcome back, <span className="text-[#006C49]">{user?.firstName || "Friend"}!</span>
             </h1>
 
             <p className="text-gray-500 mt-1 text-sm md:text-base">
               Your nutritional synthesis for{" "}
               <span className="text-[#006C49] font-medium">
-                Tuesday, Oct 24
+                {dayName}
               </span>{" "}
               is ready.
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <button
               onClick={() => router.push("/analyze-meal")}
-              className="bg-[#00A859] hover:bg-[#00964D] text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm transition flex items-center gap-2"
+              className="bg-[#00A859] hover:bg-[#00964D] text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-sm transition flex items-center justify-center gap-2"
             >
-              <Plus size={16} />
+              <Plus size={18} />
               Analyze New Meal
             </button>
 
             <button
               onClick={() => router.push("/set-goals")}
-              className="bg-white text-black border border-gray-300 hover:border-[#00A859] hover:text-[#00A859] px-5 py-2.5 rounded-xl text-sm font-medium transition"
+              className="bg-white text-gray-700 border border-gray-200 hover:border-[#00A859] hover:text-[#00A859] px-6 py-3 rounded-xl text-sm font-semibold transition shadow-sm flex items-center justify-center"
             >
               Set Goals
             </button>
           </div>
         </div>
 
-        <div className="grid  sm:grid-cols-5 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           {stats.map((s) => {
             const style = statStyles[s.title];
 

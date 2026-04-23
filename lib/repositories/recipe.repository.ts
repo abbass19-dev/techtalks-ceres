@@ -3,7 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import type { CreateRecipeInput } from "@/lib/validations/recipe";
 
 export const recipeRepository = {
-  async create(payload: CreateRecipeInput) {
+  async create(payload: CreateRecipeInput & { userId: string }) {
     await connectToDatabase();
     return Recipe.create(payload);
   },
@@ -16,5 +16,10 @@ export const recipeRepository = {
   async findById(id: string) {
     await connectToDatabase();
     return Recipe.findById(id).exec();
+  },
+
+  async findAllByUserId(userId: string) {
+    await connectToDatabase();
+    return Recipe.find({ userId }).sort({ createdAt: -1 }).exec();
   },
 };

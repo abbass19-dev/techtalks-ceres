@@ -1,43 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { createRecipeSchema } from "@/lib/validations/recipe";
 import { recipeService } from "@/lib/services/recipe.service";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
-export async function POST(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const resolvedParams = await params;
+    const requestedUserId = resolvedParams.id;
+
     const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { payload } = await jwtVerify(token, encodedSecret);
-    const userId = payload.userId as string;
-    if (!userId) {
+    const authUserId = payload.userId as string;
+    
+    if (!authUserId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const body = await req.json();
-
-    const validationResult = createRecipeSchema.safeParse(body);
-    if (!validationResult.success) {
+    // High security: ensure token owner matches the [id] param
+    if (authUserId !== requestedUserId) {
       return NextResponse.json(
-        { error: "Validation failed", details: validationResult.error.format() },
-        { status: 400 },
+        { error: "Forbidden: Cannot access recipes of another user." },
+        { status: 403 }
       );
     }
 
-    const { recipe, error } = await recipeService.addRecipe(validationResult.data, userId);
+    const { recipes, error } = await recipeService.getRecipesByUser(authUserId);
 
     if (error) {
       return NextResponse.json({ error }, { status: 500 });
     }
 
-    return NextResponse.json({ recipe }, { status: 201 });
+    return NextResponse.json({ recipes: recipes || [] }, { status: 200 });
   } catch (error) {
-    console.error("Recipe POST error:", error);
+    console.error("Recipe GET error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

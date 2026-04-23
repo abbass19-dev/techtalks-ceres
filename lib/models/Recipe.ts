@@ -2,6 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 const recipeSchema = new Schema(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     name: {
       type: String,
       required: true,

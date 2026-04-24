@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI as string;
 
 if (!MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable");
@@ -13,27 +13,16 @@ if (!cached) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
-  if (cached.conn) {
-    return cached.conn;
-  }
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    const opts = {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      dbName: "ceres",
       bufferCommands: false,
       maxPoolSize: 10,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongooseInstance) => {
-      return mongooseInstance;
     });
   }
-  
-  try {
-    cached.conn = await cached.promise;
-  } catch (error) {
-    cached.promise = null;
-    throw error;
-  }
 
+  cached.conn = await cached.promise;
   return cached.conn;
 }

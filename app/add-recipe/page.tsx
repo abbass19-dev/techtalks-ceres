@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {Utensils,Clock,BookOpen,ListOrdered,ImagePlus,Plus,X,ChevronDown,} from "lucide-react";
-import {CATEGORIES,UNITS,createIngredient,createInstruction,initialRecipe,updateIngredientById,removeIngredientById,updateInstructionById,removeInstructionById,} from "@/lib/constants/recipeForm";
-import { RecipeForm, Ingredient, Instruction } from "@/lib/utils/Types";
+import {CATEGORIES, UNITS, createIngredient, createInstruction, initialRecipe, updateIngredientById, removeIngredientById, updateInstructionById, removeInstructionById,} from "@/lib/constants/recipeForm";
+import { RecipeForm, Ingredient, Instruction ,FoodSuggestion} from "@/lib/utils/Types";
 
 function useFoodSearch(query: string, enabled: boolean) {
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<FoodSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,16 +18,13 @@ function useFoodSearch(query: string, enabled: boolean) {
     }
 
     const controller = new AbortController();
-
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
-
         const res = await fetch(
           `/api/food/search?query=${encodeURIComponent(query)}`,
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
-
         const data = await res.json();
         setResults(Array.isArray(data.suggestions) ? data.suggestions : []);
       } catch {
@@ -55,113 +52,82 @@ export default function AddRecipePage() {
     createInstruction(),
   ]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [openSearchId, setOpenSearchId] = useState<number | null>(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [status, setStatus] = useState({
+    error: "",
+    success: "",
+    loading: false,
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchBoxRef = useRef<HTMLDivElement | null>(null);
 
-  const activeIngredient =
-    ingredients.find((item) => item.id === openSearchId) || null;
-
+  const activeIngredient = ingredients.find((item) => item.id === openSearchId);
   const { results, loading: searchLoading } = useFoodSearch(
     activeIngredient?.name || "",
-    openSearchId !== null
+    openSearchId !== null,
   );
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchBoxRef.current &&
-        !searchBoxRef.current.contains(event.target as Node)
-      ) {
+    const close = (e: MouseEvent) => {
+      if (!searchBoxRef.current?.contains(e.target as Node)) {
         setOpenSearchId(null);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  const setRecipeField = (field: keyof RecipeForm, value: string) => {
-    setRecipe((prev) => ({ ...prev, [field]: value }));
-  };
+  const submitRecipe = async () => {
+    setStatus({ error: "", success: "", loading: true });
 
-  const updateIngredient = (
-    id: number,
-    field: keyof Ingredient,
-    value: string
-  ) => {
-    setIngredients((prev) => updateIngredientById(prev, id, field, value));
-  };
-
-  const addIngredient = () => {
-    setIngredients((prev) => [...prev, createIngredient()]);
-  };
-
-  const removeIngredient = (id: number) => {
-    setIngredients((prev) => removeIngredientById(prev, id));
-    if (openSearchId === id) {
-      setOpenSearchId(null);
-    }
-  };
-
-  const updateInstruction = (id: number, value: string) => {
-    setInstructions((prev) => updateInstructionById(prev, id, value));
-  };
-
-  const addInstruction = () => {
-    setInstructions((prev) => [...prev, createInstruction()]);
-  };
-
-  const removeInstruction = (id: number) => {
-    setInstructions((prev) => removeInstructionById(prev, id));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-  };
-
-  const handleSelectSuggestion = (ingredientId: number, name: string) => {
-    updateIngredient(ingredientId, "name", name);
-    setOpenSearchId(null);
-    setError("");
-    setSuccess("");
-  };
-
-  const handleSubmit = async () => {
-    setError("");
-    setSuccess("");
-    setLoading(true);
-
-    if (!recipe.name || !recipe.description || !recipe.category || !recipe.servings || !recipe.prepTime || !recipe.cookTime) {
-      setLoading(false);
-      setError("Please fill in all recipe details");
+    if (
+      !recipe.name ||
+      !recipe.description ||
+      !recipe.category ||
+      !recipe.servings ||
+      !recipe.prepTime ||
+      !recipe.cookTime
+    ) {
+      setStatus({
+        error: "Please fill in all recipe details",
+        success: "",
+        loading: false,
+      });
       return;
     }
-    const payload = {
-      ...recipe,
-      ingredients: ingredients.filter(
-        (item) => item.name || item.quantity || item.unit
-      ),
-      instructions: instructions.filter((item) => item.text?.trim()),
-      imagePreview,
-    };
 
-    console.log(payload);
+    const res = await fetch("/api/recipes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...recipe,
+        ingredients: ingredients.filter(
+          (item) => item.name || item.quantity || item.unit,
+        ),
+        instructions: instructions.filter((item) => item.text?.trim()),
+        imagePreview,
+      }),
+    });
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setLoading(false);
-    setSuccess("Recipe saved successfully!");
+    const data = await res.json();
+
+    if (data.error) {
+      setStatus({ error: data.error, success: "", loading: false });
+      return;
+    }
+
+    setStatus({
+      error: "",
+      success: "Recipe created successfully!",
+      loading: false,
+    });
+
+    setRecipe(initialRecipe);
+    setIngredients([createIngredient()]);
+    setInstructions([createInstruction()]);
+    setImagePreview(null);
   };
 
   return (
@@ -175,7 +141,8 @@ export default function AddRecipePage() {
               Create New Recipe
             </h1>
             <p className="text-sm text-slate-500 sm:text-base">
-              Add your culinary masterpiece to the NutriGuide Digital Apothecary.
+              Add your culinary masterpiece to the NutriGuide Digital
+              Apothecary.
             </p>
           </header>
 
@@ -199,7 +166,9 @@ export default function AddRecipePage() {
                       placeholder="e.g., Grilled Lemon Herb Chicken"
                       className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
                       value={recipe.name}
-                      onChange={(e) => setRecipeField("name", e.target.value)}
+                      onChange={(e) =>
+                        setRecipe({ ...recipe, name: e.target.value })
+                      }
                     />
                   </div>
 
@@ -213,7 +182,7 @@ export default function AddRecipePage() {
                       className="w-full resize-none rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
                       value={recipe.description}
                       onChange={(e) =>
-                        setRecipeField("description", e.target.value)
+                        setRecipe({ ...recipe, description: e.target.value })
                       }
                     />
                   </div>
@@ -228,7 +197,7 @@ export default function AddRecipePage() {
                           className="w-full appearance-none rounded-xl bg-[#f0f4ff] px-4 py-3 pr-10 outline-none focus:ring-2 focus:ring-blue-200"
                           value={recipe.category}
                           onChange={(e) =>
-                            setRecipeField("category", e.target.value)
+                            setRecipe({ ...recipe, category: e.target.value })
                           }
                         >
                           <option value="">Select Category</option>
@@ -254,7 +223,7 @@ export default function AddRecipePage() {
                           className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 pr-16 outline-none focus:ring-2 focus:ring-blue-200"
                           value={recipe.servings}
                           onChange={(e) =>
-                            setRecipeField("servings", e.target.value)
+                            setRecipe({ ...recipe, servings: e.target.value })
                           }
                         />
                         <span className="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-slate-400">
@@ -277,7 +246,9 @@ export default function AddRecipePage() {
 
                   <button
                     type="button"
-                    onClick={addIngredient}
+                    onClick={() =>
+                      setIngredients([...ingredients, createIngredient()])
+                    }
                     className="flex items-center gap-1 text-sm font-semibold text-green-600 hover:text-green-700"
                   >
                     <Plus className="h-4 w-4" />
@@ -286,130 +257,159 @@ export default function AddRecipePage() {
                 </div>
 
                 <div className="space-y-4">
-                  {ingredients.map((ingredient) => {
-                    const isOpen = openSearchId === ingredient.id;
-
-                    return (
+                  {ingredients.map((ingredient) => (
+                    <div
+                      key={ingredient.id}
+                      className="grid grid-cols-12 items-start gap-3"
+                    >
                       <div
-                        key={ingredient.id}
-                        className="grid grid-cols-12 items-start gap-3"
+                        className="relative col-span-12 sm:col-span-6"
+                        ref={
+                          openSearchId === ingredient.id ? searchBoxRef : null
+                        }
                       >
-                        <div
-                          className="relative col-span-12 sm:col-span-6"
-                          ref={isOpen ? searchBoxRef : null}
-                        >
-                          <input
-                            type="text"
-                            placeholder="Ingredient name..."
-                            className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
-                            value={ingredient.name}
-                            onChange={(e) => {
-                              updateIngredient(
+                        <input
+                          type="text"
+                          placeholder="Ingredient name..."
+                          className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
+                          value={ingredient.name}
+                          onChange={(e) => {
+                            setIngredients(
+                              updateIngredientById(
+                                ingredients,
                                 ingredient.id,
                                 "name",
-                                e.target.value
-                              );
-                              setOpenSearchId(ingredient.id);
-                            }}
-                            onFocus={() => {
-                              if (ingredient.name.trim().length >= 2) {
-                                setOpenSearchId(ingredient.id);
-                              }
-                            }}
-                            autoComplete="off"
-                          />
+                                e.target.value,
+                              ),
+                            );
+                            setOpenSearchId(
+                              e.target.value.trim().length >= 2
+                                ? ingredient.id
+                                : null,
+                            );
+                          }}
+                          onFocus={() =>
+                            ingredient.name.trim().length >= 2 &&
+                            setOpenSearchId(ingredient.id)
+                          }
+                          autoComplete="off"
+                        />
 
-                          {isOpen && ingredient.name.trim().length >= 2 && (
-                            <div className="absolute top-full z-50 mt-1 w-full overflow-hidden rounded-xl border border-slate-100 bg-white shadow-lg">
+                        {openSearchId === ingredient.id &&
+                          ingredient.name.trim().length >= 2 && (
+                            <div className="absolute top-full z-50 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border border-slate-100 bg-white shadow-lg">
                               {searchLoading && (
                                 <div className="px-4 py-3 text-sm text-slate-400">
                                   Searching...
                                 </div>
                               )}
-
                               {!searchLoading && results.length === 0 && (
                                 <div className="px-4 py-3 text-sm text-slate-400">
                                   No results
                                 </div>
                               )}
-
                               {!searchLoading &&
-                                results.map((name, index) => (
+                                results.map((item, index) => (
                                   <button
-                                    key={`${name}-${index}`}
+                                    key={`${item.name}-${index}`}
                                     type="button"
                                     className="w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-[#f0f4ff]"
                                     onMouseDown={(e) => {
                                       e.preventDefault();
-                                      handleSelectSuggestion(
-                                        ingredient.id,
-                                        name
+                                      setIngredients(
+                                        updateIngredientById(
+                                          ingredients,
+                                          ingredient.id,
+                                          "name",
+                                          item.name,
+                                        ),
                                       );
+                                      setOpenSearchId(null);
                                     }}
                                   >
-                                    {name}
+                                    <div className="font-medium">
+                                      {item.name}
+                                    </div>
+                                    {item.category && (
+                                      <div className="text-xs text-slate-400">
+                                        {item.category}
+                                      </div>
+                                    )}
                                   </button>
                                 ))}
                             </div>
                           )}
-                        </div>
+                      </div>
 
-                        <div className="col-span-5 sm:col-span-3">
-                          <input
-                            type="text"
-                            placeholder="Qty"
-                            className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
-                            value={ingredient.quantity}
-                            onChange={(e) =>
-                              updateIngredient(
+                      <div className="col-span-5 sm:col-span-3">
+                        <input
+                          type="text"
+                          placeholder="Qty"
+                          className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
+                          value={ingredient.quantity}
+                          onChange={(e) =>
+                            setIngredients(
+                              updateIngredientById(
+                                ingredients,
                                 ingredient.id,
                                 "quantity",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
+                                e.target.value,
+                              ),
+                            )
+                          }
+                        />
+                      </div>
 
-                        <div className="col-span-6 flex items-center gap-2 sm:col-span-3">
-                          <div className="relative flex-1">
-                            <select
-                              className="w-full appearance-none rounded-xl bg-[#f0f4ff] px-4 py-3 pr-8 text-sm outline-none focus:ring-2 focus:ring-blue-200"
-                              value={ingredient.unit}
-                              onChange={(e) =>
-                                updateIngredient(
+                      <div className="col-span-6 flex items-center gap-2 sm:col-span-3">
+                        <div className="relative flex-1">
+                          <select
+                            className="w-full appearance-none rounded-xl bg-[#f0f4ff] px-4 py-3 pr-8 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+                            value={ingredient.unit}
+                            onChange={(e) =>
+                              setIngredients(
+                                updateIngredientById(
+                                  ingredients,
                                   ingredient.id,
                                   "unit",
-                                  e.target.value
-                                )
-                              }
-                            >
-                              <option value="">Unit</option>
-                              {Object.entries(UNITS).map(([label, units]) => (
-                                <optgroup key={label} label={label}>
-                                  {units.map((unit) => (
-                                    <option key={unit} value={unit}>
-                                      {unit}
-                                    </option>
-                                  ))}
-                                </optgroup>
-                              ))}
-                            </select>
-                            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-                          </div>
-
-                          {ingredients.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeIngredient(ingredient.id)}
-                              className="shrink-0 text-slate-300 transition-colors hover:text-red-500"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          )}
+                                  e.target.value,
+                                ),
+                              )
+                            }
+                          >
+                            <option value="">Unit</option>
+                            {Object.entries(UNITS).map(([label, units]) => (
+                              <optgroup key={label} label={label}>
+                                {units.map((unit) => (
+                                  <option key={unit} value={unit}>
+                                    {unit}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
+                          <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                         </div>
+
+                        {ingredients.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIngredients(
+                                removeIngredientById(
+                                  ingredients,
+                                  ingredient.id,
+                                ),
+                              );
+                              setOpenSearchId(null);
+                            }}
+                            className="shrink-0 text-slate-300 transition-colors hover:text-red-500"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </section>
 
@@ -424,7 +424,9 @@ export default function AddRecipePage() {
 
                   <button
                     type="button"
-                    onClick={addInstruction}
+                    onClick={() =>
+                      setInstructions([...instructions, createInstruction()])
+                    }
                     className="flex items-center gap-1 text-sm font-semibold text-green-600 hover:text-green-700"
                   >
                     <Plus className="h-4 w-4" />
@@ -445,14 +447,24 @@ export default function AddRecipePage() {
                         className="w-full flex-1 resize-none rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
                         value={step.text}
                         onChange={(e) =>
-                          updateInstruction(step.id, e.target.value)
+                          setInstructions(
+                            updateInstructionById(
+                              instructions,
+                              step.id,
+                              e.target.value,
+                            ),
+                          )
                         }
                       />
 
                       {instructions.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeInstruction(step.id)}
+                          onClick={() =>
+                            setInstructions(
+                              removeInstructionById(instructions, step.id),
+                            )
+                          }
                           className="mt-2 text-slate-300 transition-colors hover:text-red-500"
                         >
                           <X className="h-5 w-5" />
@@ -474,47 +486,28 @@ export default function AddRecipePage() {
                 </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-600">
-                      Prep Time
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="10"
-                        className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-blue-200"
-                        value={recipe.prepTime}
-                        onChange={(e) =>
-                          setRecipeField("prepTime", e.target.value)
-                        }
-                      />
-                      <span className="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-slate-400">
-                        min
-                      </span>
+                  {(["prepTime", "cookTime"] as const).map((field) => (
+                    <div key={field}>
+                      <label className="mb-2 block text-sm font-medium text-slate-600">
+                        {field === "prepTime" ? "Prep Time" : "Cook Time"}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="10"
+                          className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-blue-200"
+                          value={recipe[field]}
+                          onChange={(e) =>
+                            setRecipe({ ...recipe, [field]: e.target.value })
+                          }
+                        />
+                        <span className="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-slate-400">
+                          min
+                        </span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-600">
-                      Cook Time
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="10"
-                        className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-blue-200"
-                        value={recipe.cookTime}
-                        onChange={(e) =>
-                          setRecipeField("cookTime", e.target.value)
-                        }
-                      />
-                      <span className="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-slate-400">
-                        min
-                      </span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </section>
 
@@ -527,7 +520,15 @@ export default function AddRecipePage() {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleImageChange}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = () =>
+                      setImagePreview(reader.result as string);
+                    reader.readAsDataURL(file);
+                  }}
                 />
 
                 {imagePreview ? (
@@ -561,26 +562,28 @@ export default function AddRecipePage() {
                     </p>
                   </>
                 )}
-
               </section>
-              {error && (
-                <p className="text-red-500 text-sm bg-red-100 p-2 rounded-[15px] text-center ">
-                  {error}
+
+              {status.error && (
+                <p className="rounded-[15px] bg-red-100 p-2 text-center text-sm text-red-500">
+                  {status.error}
                 </p>
               )}
-              {success && (
-                <p className="text-green-500 text-sm bg-green-100 p-2 rounded-[15px] text-center ">
-                  {success}
+
+              {status.success && (
+                <p className="rounded-[15px] bg-green-100 p-2 text-center text-sm text-green-500">
+                  {status.success}
                 </p>
               )}
+
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="w-full rounded-xl bg-[#10b981] py-4 font-bold text-white shadow-lg shadow-green-100 transition-all active:scale-[0.98] hover:bg-[#059669] disabled:opacity-50"
+                  onClick={submitRecipe}
+                  disabled={status.loading}
+                  className="w-full rounded-xl bg-[#10b981] py-4 font-bold text-white shadow-lg shadow-green-100 transition-all hover:bg-[#059669] active:scale-[0.98] disabled:opacity-50"
                 >
-                  {loading ? "Saving..." : "Save Recipe"}
+                  {status.loading ? "Saving..." : "Save Recipe"}
                 </button>
 
                 <button

@@ -13,6 +13,7 @@ export async function proxy(request: NextRequest) {
     "/",
     "/signin",
     "/signup",
+    
     "/forget-password",
     "/reset-password",
   ];

@@ -51,5 +51,10 @@ export interface Instruction {
   id: number;
   text?: string;
 }
+export type FoodSuggestion = {
+  name: string;
+  aliases?: string[];
+  category?: string;
+};
 
 export type ScheduleState = Record<string, string[]>;

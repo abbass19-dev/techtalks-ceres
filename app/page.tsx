@@ -22,7 +22,7 @@ export default function LandingPage() {
         <header className="absolute top-0 left-0 z-50 w-full bg-linear-to-b from-white/90 to-white/30">
           <nav className="mx-auto flex h-17.5 w-full max-w-410 items-center justify-between px-2">
             <Image
-              src="/assets/logo.png"
+              src="/images/logo.png"
               alt="Logo"
               width={120}
               height={70}

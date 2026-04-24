@@ -1,9 +1,9 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="bg-white">
+    <section className="bg-white pt-24">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 pt-8 pb-14 sm:px-6 sm:pt-12 lg:grid-cols-2 lg:gap-12 lg:pt-16 lg:pb-20 lg:px-8">
         <div className="order-2 space-y-5 md:order-1 md:space-y-6">
           <h1 className="max-w-70 text-[1.9rem] font-bold leading-[1.08] tracking-tight text-slate-900 min-[380px]:max-w-80 min-[380px]:text-[2.15rem] sm:max-w-xl sm:text-5xl lg:text-6xl">

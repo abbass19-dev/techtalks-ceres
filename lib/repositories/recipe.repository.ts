@@ -1,9 +1,8 @@
-import { Recipe } from "@/lib/models/Recipe";
+import Recipe, { IRecipe } from "@/lib/models/Recipe";
 import { connectToDatabase } from "@/lib/db";
-import type { CreateRecipeInput } from "@/lib/validations/recipe";
 
 export const recipeRepository = {
-  async create(payload: CreateRecipeInput & { userId: string }) {
+  async create(payload: any) {
     await connectToDatabase();
     return Recipe.create(payload);
   },
@@ -23,3 +22,4 @@ export const recipeRepository = {
     return Recipe.find({ userId }).sort({ createdAt: -1 }).exec();
   },
 };
+

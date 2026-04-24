@@ -1,9 +1,8 @@
-import { Recipe } from "@/lib/models/Recipe";
+import Recipe, { IRecipe } from "@/lib/models/Recipe";
 import { connectToDatabase } from "@/lib/db";
-import type { CreateRecipeInput } from "@/lib/validations/recipe";
 
 export const recipeRepository = {
-  async create(payload: CreateRecipeInput) {
+  async create(payload: IRecipe) {
     await connectToDatabase();
     return Recipe.create(payload);
   },
@@ -18,3 +17,4 @@ export const recipeRepository = {
     return Recipe.findById(id).exec();
   },
 };
+

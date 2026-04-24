@@ -1,33 +1,35 @@
+import { NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/db";
+import Ingredient from "@/lib/models/Ingredient";
 
-
-import { NextRequest, NextResponse } from "next/server";
-
-export async function GET(req: NextRequest) {
-  const query = req.nextUrl.searchParams.get("query") ?? "";
-  if (!query.trim()) return NextResponse.json({ suggestions: [] });
-
-  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=8&api_key=${process.env.USDA_API_KEY}`;
-
+export async function GET(req: Request) {
   try {
-    const res = await fetch(url, { next: { revalidate: 60 } }); 
-    if (!res.ok) return NextResponse.json({ suggestions: [] }, { status: res.status });
+    await connectToDatabase();
 
-    const data = await res.json();
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get("query")?.trim();
 
-    
-    const seen = new Set<string>();
-    const suggestions: string[] = [];
-    for (const food of data.foods ?? []) {
-      const desc: string = food.description ?? "";
-      const key = desc.toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        suggestions.push(desc.split(",")[0].trim());
-      }
+    if (!query || query.length < 2) {
+      return NextResponse.json({ suggestions: [] });
     }
+
+    const results = await Ingredient.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { aliases: { $elemMatch: { $regex: query, $options: "i" } } },
+      ],
+    })
+      .limit(20)
+      .select("name aliases category");
+
+    const suggestions = results.map((item) => ({
+      name: item.name,
+      aliases: item.aliases,
+      category: item.category,
+    }));
 
     return NextResponse.json({ suggestions });
   } catch {
-    return NextResponse.json({ suggestions: [] }, { status: 500 });
+    return NextResponse.json({ suggestions: [] });
   }
 }

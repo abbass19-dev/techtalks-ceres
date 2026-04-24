@@ -100,8 +100,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0  z-50 hidden border-b border-green-100 bg-white backdrop-blur-sm md:block">
-        <div className="mx-auto flex w-full items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm hidden md:block">
+        <div className="mx-auto flex w-full items-center justify-between px-6 py-3 md:px-12">
           <Link href="/home" className="flex items-center gap-2">
             <Image
               src="/images/logo.png"

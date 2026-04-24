@@ -2,7 +2,7 @@ import Recipe, { IRecipe } from "@/lib/models/Recipe";
 import { connectToDatabase } from "@/lib/db";
 
 export const recipeRepository = {
-  async create(payload: IRecipe) {
+  async create(payload: any) {
     await connectToDatabase();
     return Recipe.create(payload);
   },
@@ -15,6 +15,11 @@ export const recipeRepository = {
   async findById(id: string) {
     await connectToDatabase();
     return Recipe.findById(id).exec();
+  },
+
+  async findAllByUserId(userId: string) {
+    await connectToDatabase();
+    return Recipe.find({ userId }).sort({ createdAt: -1 }).exec();
   },
 };
 

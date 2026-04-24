@@ -31,13 +31,40 @@ export interface IRecipeDocument extends IRecipe, Document {}
 
 const RecipeSchema = new Schema(
   {
-    name: String,
-    description: String,
-    category: String,
-    servings: Number,
-    prepTime: Number,
-    cookTime: Number,
-
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    category: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    servings: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    prepTime: {
+      type: Number,
+      required: false,
+    },
+    cookTime: {
+      type: Number,
+      required: false,
+    },
     ingredients: [
       {
         name: String,
@@ -52,7 +79,6 @@ const RecipeSchema = new Schema(
         },
       },
     ],
-
     totalNutrition: {
       calories: { type: Number, default: 0 },
       protein: { type: Number, default: 0 },

@@ -8,7 +8,7 @@ const escapeRegex = (text: string) =>
   text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const recipeService = {
-  async addRecipe(input: CreateRecipeInput) {
+  async addRecipe(input: CreateRecipeInput, userId: string) {
     try {
       let totalNutrition = {
         calories: 0,
@@ -63,10 +63,10 @@ export const recipeService = {
 
       const newRecipe = await recipeRepository.create({
         ...input,
+        userId,
         ingredients: calculatedIngredients,
         totalNutrition,
       } as any);
-
       return { recipe: newRecipe, error: null };
     } catch (error) {
       console.error("Error adding recipe:", error);
@@ -80,6 +80,16 @@ export const recipeService = {
       return { recipes, error: null };
     } catch (error) {
       console.error("Error retrieving recipes:", error);
+      return { recipes: null, error: "Failed to retrieve recipes" };
+    }
+  },
+
+  async getRecipesByUser(userId: string) {
+    try {
+      const recipes = await recipeRepository.findAllByUserId(userId);
+      return { recipes, error: null };
+    } catch (error) {
+      console.error("Error retrieving user recipes:", error);
       return { recipes: null, error: "Failed to retrieve recipes" };
     }
   },

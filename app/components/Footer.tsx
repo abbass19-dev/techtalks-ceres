@@ -14,8 +14,8 @@ export default function Footer() {
           />
         </div>
 
-        <p className="absolute left-1/2 -translate-x-1/2 text-xs text-slate-500 sm:text-sm">
-          © {new Date().getFullYear()} CÉRES. All rights reserved.
+        <p className="absolute left-1/2 -translate-x-1/2 text-xs text-slate-500 sm:text-sm text-center">
+          © {new Date().getFullYear()} CÉRES All rights reserved.
         </p>
       </div>
     </footer>

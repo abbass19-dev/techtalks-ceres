@@ -1,156 +1,176 @@
-# 🥗 CÉRES | The Elite Culinary & Nutrition Intelligence Platform
+![CÉRES Banner](./readme-images/readme-banner.png)
 
-**Precision Nutrition. Intelligent Analysis. Seamless Tracking.**
+# CÉRES
 
-CÉRES is a state-of-the-art, full-stack nutritional ecosystem engineered with **Next.js 16**. It empowers health-conscious users, athletes, and culinary enthusiasts to dissect the molecular composition of their meals, track performance goals, and share culinary masterpieces with a global community.
+**Precision Culinary & Nutrition Intelligence Platform**
 
----
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC)
 
-## 💎 Premium Features
+CÉRES is a high-performance nutritional ecosystem engineered to bridge the gap between raw ingredients and clinical-grade data. It empowers users to dissect the molecular composition of their meals, track long-term health goals, and participate in a global culinary community.
 
-### 🧪 Advanced Nutrition Intelligence
-- **USDA-Powered Analysis**: Integrated with the **USDA FoodData Central API** for medical-grade nutritional accuracy across thousands of ingredients.
-- **Dynamic Macro Mapping**: Instant visualization of Calories, Protein, Carbohydrates, and Fats with precise percentage breakdowns.
-- **Micro-Nutrient Insights**: Deep dives into fiber, sugar, and essential vitamins to ensure a balanced lifestyle.
+## 📑 Table of Contents
 
-### 🏘️ The Community Hub
-- **Recipe Marketplace**: Discover, save, and share high-performance recipes curated by the CÉRES community.
-- **Social Integration**: Build your culinary profile and showcase your signature dishes with high-quality visual cards.
+- [🔎 Overview](#🔎-overview)
+- [💡 Why CÉRES?](#💡-why-céres)
+- [✨ Features](#✨-features)
+- [🛠️ Tech Stack](#🛠️-tech-stack)
+- [🚀 Getting Started](#🚀-getting-started)
+- [📁 Project Structure](#📁-project-structure)
+- [🗄️ Database Schema](#🗄️-database-schema)
+- [🔐 Authentication & Authorization](#🔐-authentication--authorization)
+- [🎨 Styling Guidelines](#🎨-styling-guidelines)
+- [🏗️ Development Guidelines](#🏗️-development-guidelines)
+- [🆘 Support](#🆘-support)
 
-### 📈 Performance Dashboard
-- **Goal Optimization**: Set sophisticated daily caloric targets and macro-nutrient ratios tailored to your fitness journey.
-- **Trend Analysis**: Monitor your progress with intuitive charts and historical meal logs that visualize your nutritional evolution.
+## 🔎 Overview
 
-### 🔐 Enterprise-Grade Security
-- **Secure Auth**: Robust session management powered by **Jose (JWT)** and **Bcryptjs** encryption.
-- **Privacy First**: Personalized data silos ensuring your metrics and history remain strictly confidential.
+![CÉRES Hero Section](./readme-images/hero-section.png)
 
----
+CÉRES serves as a unified intelligence layer for health-conscious individuals and culinary professionals. The platform enables:
 
-## 🛠 Tech Stack
+- **Users** to analyze ingredients via USDA-grade data, track daily macros, and manage personalized health profiles.
+- **Communities** to share high-performance recipes and build social culinary identities.
+- **Administrators** to oversee the medicine-grade catalog and platform-wide engagement metrics.
 
-### Frontend Architecture
-- ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) **v16 (App Router)**
-- ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) **v19**
-- ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) **v4**
-- ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+## 💡 Why CÉRES?
 
-### Backend & Infrastructure
-- ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) **Mongoose ODM**
-- ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-- **Lucide React** for premium iconography
-- **Resend & Nodemailer** for sophisticated communication flows
+Nutrition tracking is often fragmented and inaccurate. CÉRES solves this by centralizing high-fidelity data and community insights.
 
----
+- **Clinical-Grade Accuracy** - Integrated with the USDA FoodData Central API for verified nutritional profiles.
+- **Holistic Tracking** - Beyond calories; focus on proteins, fats, fibers, and essential micronutrients.
+- **Community Hub** - A collaborative marketplace for sharing nutritional masterpieces.
+- **Scalable Architecture** - Built on a modular Next.js 16 stack for speed and reliability.
 
-## 🚀 Deployment & Local Development
+## ✨ Features
+
+### For Users 🧑‍⚕️
+- Real-time ingredient search via USDA API.
+- Dynamic macro mapping (Calories, Protein, Carbohydrates, Fats).
+- Personal health dashboards with trend visualization.
+- Customizable daily nutritional goals and goal tracking.
+- Recipe saving and "Community Favorites" library.
+
+### For the Community 🤝
+- Recipe Marketplace: Share and discover high-performance meals.
+- User Profiles: Showcase your culinary and nutritional journey.
+- Social Engagement: Follow and interact with other health enthusiasts.
+
+### For Administrators 🛡️
+- Global catalog management.
+- User role oversight and platform monitoring.
+- Analytics on platform-wide nutritional trends.
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Database:** MongoDB with Mongoose ODM
+- **Authentication:** Jose (JWT) with Bcryptjs encryption
+- **Styling:** Tailwind CSS v4 (PostCSS integration)
+- **Iconography:** Lucide React
+- **Email:** Resend & Nodemailer (SMTP)
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** (v20+ Recommended)
-- **MongoDB** Instance (Local or Atlas)
-- **USDA API Key** (Optional for full nutrition search)
 
-### Quick Start
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/abbas/ceres-nutrition.git
-    cd ceres-nutrition
-    ```
+- Node.js 20+ and npm
+- MongoDB instance (Local or Atlas)
+- USDA API Key (Optional for full nutrition search)
 
-2.  **Configuration**
-    Create a `.env` file in the root directory:
-    ```env
-    MONGODB_URI=your_mongodb_uri
-    JWT_SECRET=your_jwt_secret
-    USDA_API_KEY=your_usda_key
-    ```
+### Installation
 
-3.  **Launch Platform**
-    ```bash
-    npm install
-    npm run dev
-    ```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/abbas/techtalks-ceres.git
+   cd techtalks-ceres
+   ```
 
-4.  **Access**
-    Visit `http://localhost:3000` to experience the future of nutrition tracking.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
----
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory:
+   ```env
+   MONGODB_URI="your-mongodb-uri"
+   JWT_SECRET="your-secret-key"
+   USDA_API_KEY="your-usda-key"
+   NEXT_PUBLIC_APP_URL="http://localhost:3000"
+   ```
 
-## 🗺 Roadmap
-- [ ] AI-Powered Meal Recognition from Photos
-- [ ] Integration with Wearable Health Devices (Apple Health, Fitbit)
-- [ ] Smart Shopping List Generation based on Weekly Meal Plans
-- [ ] Professional Nutritionist Consultation Portal
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
----
-
-## 🏗 Architecture & Data Flow
-
-CÉRES follows a **Modular Clean Architecture** to ensure scalability and maintainability. It leverages the Next.js App Router for server-side rendering and API routes for backend logic.
-
-```mermaid
-graph TD
-    User((User)) -->|Interacts| UI[Next.js Client Components]
-    UI -->|API Requests| Routes[API Routes /app/api]
-    Routes -->|Invoke| Services[Services /lib/services]
-    Services -->|Data Ops| Repos[Repositories /lib/repositories]
-    Repos -->|Query| DB[(MongoDB)]
-    Services -->|Fetch| USDA[USDA API]
-    Services -->|Email| Resend[Resend/SMTP]
-```
-
----
-
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```text
-├── app/                  # Next.js App Router (Pages & API)
-│   ├── api/              # Backend API Endpoints
-│   ├── components/       # Shared UI Components
-│   └── (routes)/         # Feature-specific pages (Dashboard, Recipes, etc.)
-├── lib/                  # Core Business Logic & Infrastructure
-│   ├── models/           # Mongoose Data Models
-│   ├── services/         # Orchestration & External API Integration
-│   ├── repositories/     # Data Access Layer
-│   ├── utils/            # Shared Utilities & Types
-│   └── validations/      # Zod Schemas
-├── public/               # Static Assets (Images, Icons)
-└── proxy.ts              # Authentication & Routing Proxy logic
+├── app/                      # Next.js App Router
+│   ├── api/                  # Backend API routes
+│   ├── components/           # Shared UI components
+│   ├── (dashboard)/          # Dashboard and tracking features
+│   └── (recipes)/            # Recipe and community hub
+├── lib/                      # Core Logic & Infrastructure
+│   ├── models/               # Mongoose schemas
+│   ├── services/             # API & Business logic
+│   ├── repositories/         # Data access layer
+│   └── utils/                # Shared utilities & Types
+├── prisma/                   # (Optional) Future migration to Prisma
+├── constants/                # Global configuration
+└── public/                   # Static assets & Icons
 ```
 
+## 🗄️ Database Schema
+
+The application uses MongoDB with Mongoose ODM. Key models include:
+
+- **User:** Core accounts with profile metrics (weight, height, age).
+- **Recipe:** Nutritional masterpieces with ingredient breakdowns.
+- **NutritionLog:** Daily tracking of calories and macros.
+- **Goal:** User-defined caloric and nutrient targets.
+
+## 🔐 Authentication & Authorization
+
+- **JWT-Based Session Management** via `jose`.
+- **Password Encryption** using `bcryptjs`.
+- **Role-Based Access Control** (User, Admin).
+- **Protected Routes** via middleware logic.
+
+## 🎨 Styling Guidelines
+
+- **Tailwind CSS 4:** Using a custom design system with CSS variable utilities.
+- **Responsive:** Mobile-first approach for dashboards and recipe cards.
+- **Premium Aesthetics:** Clean, minimalist UI with vibrant green accents and dark mode support.
+
+## 🏗️ Development Guidelines
+
+- **API Routes Only:** No Server Actions - use `app/api/*/route.ts` handlers.
+- **Server Components:** Default for pages; use `"use client"` only for interactivity.
+- **Type Safety:** Strict TypeScript interfaces for all data structures.
+- **Modular Services:** Keep business logic in `lib/services`, not in route handlers.
+
+## 📜 Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+```
+
+## 🆘 Support
+
+For issues and questions:
+- **Report a bug:** [Create an issue](../../issues/new)
+- **Contact:** info@techtalks-ceres.com
+
 ---
 
-## ⚙️ Detailed Configuration
-
-To fully unlock the platform's capabilities, configure the following environment variables in your `.env.local`:
-
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `MONGODB_URI` | Connection string for MongoDB Atlas or Local | `mongodb+srv://...` |
-| `JWT_SECRET` | 64-character string for token encryption | `your-secret-key` |
-| `USDA_API_KEY` | Key from [USDA FDC](https://fdc.nal.usda.gov/) | `5UOcKZBH...` |
-| `RESEND_API_KEY` | For transactional emails via Resend | `re_...` |
-| `SMTP_PASSWORD` | App password for SMTP fallback (e.g., Gmail) | `xxxx xxxx xxxx xxxx` |
-| `NEXT_PUBLIC_APP_URL`| The base URL of your application | `http://localhost:3000` |
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the community! To get started:
-
-1.  **Fork** the repository.
-2.  **Create** a feature branch (`git checkout -b feature/AmazingFeature`).
-3.  **Commit** your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  **Push** to the branch (`git push origin feature/AmazingFeature`).
-5.  **Open** a Pull Request.
-
----
-
-## 📜 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
----
-
-Designed with ❤️ for a Healthier World.
+**Built with ❤️ for a Healthier World**

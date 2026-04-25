@@ -2,27 +2,23 @@
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { mockCards } from "@/lib/data/mockData";
 import { Search, Heart } from "lucide-react";
+import { Recipe } from "@/lib/utils/Types";
 
-type Recipe = {
-  id: string;
-  title: string;
-  image?: string;
-  calories: number;
-  protein: number;
-  category?: string;
-  tag?: string;
-  author?: string;
-};
-
-const categories = ["All Recipes", "Breakfast", "Lunch", "Dinner", "Snacks"];
+const categories = [
+  "All Recipes",
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Snacks",
+  "Desserts",
+];
 
 export default function CommunityRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [filtered, setFiltered] = useState<Recipe[]>([]);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All Recipes");
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -42,29 +38,23 @@ export default function CommunityRecipesPage() {
   useEffect(() => {
     setTimeout(() => {
       setRecipes(mockCards);
-      setFiltered(mockCards);
       setLoading(false);
     }, 500);
   }, []);
 
-  useEffect(() => {
-    let result = recipes;
+  const filteredRecipes = useMemo(() => {
+    return recipes.filter((recipe) => {
+      const matchesSearch = recipe.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
-    if (search) {
-      result = result.filter((recipe) =>
-        recipe.title.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+      const matchesCategory =
+        activeCategory === "All Recipes" ||
+        recipe.category?.toLowerCase() === activeCategory.toLowerCase();
 
-    if (activeCategory !== "All Recipes") {
-      result = result.filter(
-        (recipe) =>
-          recipe.category?.toLowerCase() === activeCategory.toLowerCase()
-      );
-    }
-
-    setFiltered(result);
-  }, [search, activeCategory, recipes]);
+      return matchesSearch && matchesCategory;
+    });
+  }, [recipes, search, activeCategory]);
 
   const handleNavigate = (id: string) => {
     router.push(`/recipes/${id}`);
@@ -72,15 +62,15 @@ export default function CommunityRecipesPage() {
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
     );
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#F5F5F5] overflow-x-hidden flex flex-col">
+    <div className="min-h-screen w-full bg-[#F5F5F5]  flex flex-col">
       <Navbar />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
+      <main className="flex-1 w-full mx-auto px-4 md:px-8 py-6 md:py-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Community Recipes
         </h1>
@@ -123,13 +113,13 @@ export default function CommunityRecipesPage() {
           <p className="text-gray-500 text-center">Loading recipes...</p>
         )}
 
-        {!loading && filtered.length === 0 && (
+        {!loading && filteredRecipes.length === 0 && (
           <p className="text-gray-500 text-center">No recipes found 🥲</p>
         )}
 
-        {!loading && filtered.length > 0 && (
+        {!loading && filteredRecipes.length > 0 && (
           <div className="grid gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((recipe) => (
+            {filteredRecipes.map((recipe) => (
               <div
                 key={recipe.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"

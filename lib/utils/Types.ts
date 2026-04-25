@@ -56,5 +56,15 @@ export type FoodSuggestion = {
   aliases?: string[];
   category?: string;
 };
+export type Recipe = {
+  id: string;
+  title: string;
+  image?: string;
+  calories: number;
+  protein: number;
+  category?: string;
+  tag?: string;
+  author?: string;
+};
 
 export type ScheduleState = Record<string, string[]>;

@@ -84,4 +84,73 @@ CÉRES is a state-of-the-art, full-stack nutritional ecosystem engineered with *
 
 ---
 
+## 🏗 Architecture & Data Flow
+
+CÉRES follows a **Modular Clean Architecture** to ensure scalability and maintainability. It leverages the Next.js App Router for server-side rendering and API routes for backend logic.
+
+```mermaid
+graph TD
+    User((User)) -->|Interacts| UI[Next.js Client Components]
+    UI -->|API Requests| Routes[API Routes /app/api]
+    Routes -->|Invoke| Services[Services /lib/services]
+    Services -->|Data Ops| Repos[Repositories /lib/repositories]
+    Repos -->|Query| DB[(MongoDB)]
+    Services -->|Fetch| USDA[USDA API]
+    Services -->|Email| Resend[Resend/SMTP]
+```
+
+---
+
+## 📂 Project Structure
+
+```text
+├── app/                  # Next.js App Router (Pages & API)
+│   ├── api/              # Backend API Endpoints
+│   ├── components/       # Shared UI Components
+│   └── (routes)/         # Feature-specific pages (Dashboard, Recipes, etc.)
+├── lib/                  # Core Business Logic & Infrastructure
+│   ├── models/           # Mongoose Data Models
+│   ├── services/         # Orchestration & External API Integration
+│   ├── repositories/     # Data Access Layer
+│   ├── utils/            # Shared Utilities & Types
+│   └── validations/      # Zod Schemas
+├── public/               # Static Assets (Images, Icons)
+└── proxy.ts              # Authentication & Routing Proxy logic
+```
+
+---
+
+## ⚙️ Detailed Configuration
+
+To fully unlock the platform's capabilities, configure the following environment variables in your `.env.local`:
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `MONGODB_URI` | Connection string for MongoDB Atlas or Local | `mongodb+srv://...` |
+| `JWT_SECRET` | 64-character string for token encryption | `your-secret-key` |
+| `USDA_API_KEY` | Key from [USDA FDC](https://fdc.nal.usda.gov/) | `5UOcKZBH...` |
+| `RESEND_API_KEY` | For transactional emails via Resend | `re_...` |
+| `SMTP_PASSWORD` | App password for SMTP fallback (e.g., Gmail) | `xxxx xxxx xxxx xxxx` |
+| `NEXT_PUBLIC_APP_URL`| The base URL of your application | `http://localhost:3000` |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! To get started:
+
+1.  **Fork** the repository.
+2.  **Create** a feature branch (`git checkout -b feature/AmazingFeature`).
+3.  **Commit** your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  **Push** to the branch (`git push origin feature/AmazingFeature`).
+5.  **Open** a Pull Request.
+
+---
+
+## 📜 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
 Designed with ❤️ for a Healthier World.

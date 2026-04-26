@@ -8,6 +8,7 @@ export const createRecipeSchema = z.object({
   servings: z.coerce.number().int().positive(),
   prepTime: z.coerce.number().int().nonnegative().optional(),
   cookTime: z.coerce.number().int().nonnegative().optional(),
+  imageUrl: z.string().url("Must be a valid URL").optional(),
 
   ingredients: z.array(
     z.object({

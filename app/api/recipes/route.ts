@@ -3,6 +3,8 @@ import { jwtVerify } from "jose";
 import { connectToDatabase } from "@/lib/db";
 import { recipeService } from "@/lib/services/recipe.service";
 import { createRecipeSchema } from "@/lib/validations/recipe";
+import { parseRecipeRequest, RequestParseError, ParsedRequest } from "@/lib/utils/requestParser";
+import { uploadImageToCloudinary } from "@/lib/services/cloudinary.service";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
@@ -26,6 +28,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
+    
     const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,7 +40,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const body = await req.json();
+    let body: unknown;
+    try {
+      body = await parseRecipeRequest(req);
+    } catch (error) {
+      if (error instanceof RequestParseError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      throw error;
+    }
 
     const validationResult = createRecipeSchema.safeParse(body);
 

@@ -10,20 +10,7 @@ import { useWeeklyPlanner } from "@/hooks/useWeeklyPlanner";
 import { DndContext } from "@dnd-kit/core";
 
 export default function WeeklyPlanner() {
-  const {
-    isMounted,
-    isLoading,
-    schedule,
-    search,
-    setSearch,
-    weekDates,
-    unscheduledCards,
-    handleDragEnd,
-    handleRemove,
-    handleAdd,
-    sensors,
-    mockCards,
-  } = useWeeklyPlanner();
+  const {isMounted,isLoading,schedule,search, setSearch, weekDates, unscheduledCards,handleDragEnd, handleRemove,handleAdd,sensors,mockCards,} = useWeeklyPlanner();
 
   if (!isMounted || isLoading) {
     return (
@@ -143,5 +130,5 @@ export default function WeeklyPlanner() {
         </div>
       </DndContext>
     </div>
-  );``
+  );
 }

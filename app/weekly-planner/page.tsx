@@ -37,7 +37,7 @@ export default function WeeklyPlanner() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#f5f7fb]">
       <Navbar />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="min-h-screen bg-[#f5f7fb] px-3 py-4 sm:px-4 md:px-6 lg:px-8">
@@ -142,6 +142,6 @@ export default function WeeklyPlanner() {
           </div>
         </div>
       </DndContext>
-    </>
-  );
+    </div>
+  );``
 }

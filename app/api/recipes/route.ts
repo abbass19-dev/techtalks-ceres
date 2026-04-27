@@ -3,15 +3,37 @@ import { jwtVerify } from "jose";
 import { connectToDatabase } from "@/lib/db";
 import { recipeService } from "@/lib/services/recipe.service";
 import { createRecipeSchema } from "@/lib/validations/recipe";
-import { parseRecipeRequest, RequestParseError, ParsedRequest } from "@/lib/utils/requestParser";
-import { uploadImageToCloudinary } from "@/lib/services/cloudinary.service";
+import {parseRecipeRequest,RequestParseError,} from "@/lib/utils/requestParser";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
+
+    // Check if user is requesting their own recipes
+    const token = req.cookies.get("token")?.value;
+    const searchParams = req.nextUrl.searchParams;
+    const userOnly = searchParams.get("userOnly") === "true";
+
+    if (userOnly && token) {
+      try {
+        const { payload } = await jwtVerify(token, encodedSecret);
+        const userId = payload.userId as string;
+        if (userId) {
+          const { recipes, error } =
+            await recipeService.getRecipesByUser(userId);
+          if (error) {
+            return NextResponse.json({ error }, { status: 500 });
+          }
+          return NextResponse.json({ recipes });
+        }
+      } catch (e) {
+        // Fall through to getAllRecipes if token is invalid
+      }
+    }
+
     const { recipes, error } = await recipeService.getAllRecipes();
 
     if (error) {
@@ -28,7 +50,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
-    
+
     const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -45,7 +67,10 @@ export async function POST(req: NextRequest) {
       body = await parseRecipeRequest(req);
     } catch (error) {
       if (error instanceof RequestParseError) {
-        return NextResponse.json({ error: error.message }, { status: error.status });
+        return NextResponse.json(
+          { error: error.message },
+          { status: error.status },
+        );
       }
       throw error;
     }
@@ -54,14 +79,17 @@ export async function POST(req: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: "Validation failed", details: validationResult.error.format() },
-        { status: 400 }
+        {
+          error: "Validation failed",
+          details: validationResult.error.format(),
+        },
+        { status: 400 },
       );
     }
 
     const { recipe, error } = await recipeService.addRecipe(
       validationResult.data,
-      userId
+      userId,
     );
 
     if (error) {
@@ -77,7 +105,7 @@ export async function POST(req: NextRequest) {
         error: "Server error",
         details: error instanceof Error ? error.message : error,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -7,6 +7,7 @@ export interface IRecipe {
   servings: number;
   prepTime?: number;
   cookTime?: number;
+  imageUrl?: string;
   ingredients: {
     name: string;
     quantity: number;
@@ -63,6 +64,10 @@ const RecipeSchema = new Schema(
     },
     cookTime: {
       type: Number,
+      required: false,
+    },
+    imageUrl: {
+      type: String,
       required: false,
     },
     ingredients: [

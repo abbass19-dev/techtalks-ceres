@@ -28,21 +28,23 @@ export function useWeeklyPlanner() {
     async function fetchData() {
       setIsLoading(true);
       try {
-        // Fetch Recipes
-        const recipesRes = await fetch("/api/recipes");
+        // Fetch User's Recipes Only
+        const recipesRes = await fetch("/api/recipes?userOnly=true");
         const recipesData = await recipesRes.json();
-        
+
         if (recipesData.recipes) {
-          const mappedRecipes: CardItem[] = recipesData.recipes.map((r: any) => ({
-            id: r._id,
-            title: r.name,
-            category: r.category,
-            calories: r.totalNutrition?.calories || 0,
-            protein: r.totalNutrition?.protein || 0,
-            time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
-            minutes: (r.prepTime || 0) + (r.cookTime || 0),
-            imageurl: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
-          }));
+          const mappedRecipes: CardItem[] = recipesData.recipes.map(
+            (r: any) => ({
+              id: r._id,
+              title: r.name,
+              category: r.category,
+              calories: r.totalNutrition?.calories || 0,
+              protein: r.totalNutrition?.protein || 0,
+              time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
+              minutes: (r.prepTime || 0) + (r.cookTime || 0),
+              image: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
+            }),
+          );
           setRecipes(mappedRecipes);
         }
 
@@ -86,7 +88,10 @@ export function useWeeklyPlanner() {
   }, [schedule]);
 
   // Computed state
-  const visibleCards = useMemo(() => filterCards(recipes, search), [recipes, search]);
+  const visibleCards = useMemo(
+    () => filterCards(recipes, search),
+    [recipes, search],
+  );
   const unscheduledCards = useMemo(
     () => getUnscheduledCards(visibleCards, schedule),
     [visibleCards, schedule],

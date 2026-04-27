@@ -41,9 +41,9 @@ export default function PlannerCard({
       } ${small ? "p-2.5" : "p-3"}`}
     >
       <div className="flex gap-2.5">
-        {!scheduled && (
+        {!scheduled && item.image && (
           <Image
-            src={item.imageurl}
+            src={item.image}
             alt={item.title}
             width={64}
             height={64}

@@ -51,6 +51,7 @@ export default function AddRecipePage() {
   const [instructions, setInstructions] = useState<Instruction[]>([
     createInstruction(),
   ]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [openSearchId, setOpenSearchId] = useState<number | null>(null);
   const [status, setStatus] = useState({
@@ -98,17 +99,25 @@ export default function AddRecipePage() {
       return;
     }
 
-    const res = await fetch("/api/recipes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
         ...recipe,
         ingredients: ingredients.filter(
           (item) => item.name || item.quantity || item.unit,
         ),
         instructions: instructions.filter((item) => item.text?.trim()),
-        imagePreview,
-      }),
+      })
+    );
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const res = await fetch("/api/recipes", {
+      method: "POST",
+      body: formData,
     });
 
     const data = await res.json();
@@ -127,6 +136,7 @@ export default function AddRecipePage() {
     setRecipe(initialRecipe);
     setIngredients([createIngredient()]);
     setInstructions([createInstruction()]);
+    setImageFile(null);
     setImagePreview(null);
   };
 
@@ -524,6 +534,8 @@ export default function AddRecipePage() {
                     const file = e.target.files?.[0];
                     if (!file) return;
 
+                    setImageFile(file);
+
                     const reader = new FileReader();
                     reader.onload = () =>
                       setImagePreview(reader.result as string);
@@ -542,6 +554,7 @@ export default function AddRecipePage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setImageFile(null);
                         setImagePreview(null);
                       }}
                       className="absolute top-2 right-2 rounded-full bg-white/80 p-1 text-red-500 backdrop-blur-sm hover:bg-white"

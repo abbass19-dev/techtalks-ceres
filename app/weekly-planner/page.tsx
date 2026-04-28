@@ -12,6 +12,7 @@ import { DndContext } from "@dnd-kit/core";
 export default function WeeklyPlanner() {
   const {
     isMounted,
+    isLoading,
     schedule,
     search,
     setSearch,
@@ -24,15 +25,12 @@ export default function WeeklyPlanner() {
     mockCards,
   } = useWeeklyPlanner();
 
-  if (!isMounted) {
+  if (!isMounted || isLoading) {
     return (
-      <div className="min-h-screen bg-[#f5f7fb] px-3 py-4 sm:px-4 md:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1500px]">
-          <div className="mb-4 rounded-[22px] border border-slate-200 bg-white px-4 py-5 shadow-sm sm:px-5 md:px-6">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Weekly Apothecary Planner
-            </h1>
-          </div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f5f7fb]">
+        <div className="text-center">
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent mx-auto"></div>
+          <p className="text-slate-600 font-medium">Loading your Apothecary Planner...</p>
         </div>
       </div>
     );
@@ -43,7 +41,7 @@ export default function WeeklyPlanner() {
       <Navbar />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="min-h-screen bg-[#f5f7fb] px-3 py-4 sm:px-4 md:px-6 lg:px-8">
-          <div className="mx-auto max-w-[1500px]">
+          <div className="mx-auto max-w-full">
             <div className="mb-4 rounded-[22px] border border-slate-200 bg-white px-4 py-5 shadow-sm sm:px-5 md:px-6">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 Weekly Apothecary Planner

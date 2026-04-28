@@ -7,6 +7,22 @@ import { createRecipeSchema } from "@/lib/validations/recipe";
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
+export async function GET() {
+  try {
+    await connectToDatabase();
+    const { recipes, error } = await recipeService.getAllRecipes();
+
+    if (error) {
+      return NextResponse.json({ error }, { status: 500 });
+    }
+
+    return NextResponse.json({ recipes });
+  } catch (error) {
+    console.error("Recipe GET error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();

@@ -1,17 +1,18 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import {DragEndEvent,PointerSensor,TouchSensor,useSensor,useSensors,} from "@dnd-kit/core";
-import { ScheduleState } from "@/lib/utils/Types";
-import {getCurrentWeek,formatDate,filterCards,getUnscheduledCards,moveCard,removeCard,} from "@/lib/utils/plannerUtils";
-import { mockCards } from "@/lib/data/mockData";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { ScheduleState, CardItem } from "@/lib/utils/Types";
+import { getCurrentWeek, filterCards, getUnscheduledCards, moveCard, removeCard } from "@/lib/utils/plannerUtils";
 
 export function useWeeklyPlanner() {
   const [isMounted, setIsMounted] = useState(false);
   const [schedule, setSchedule] = useState<ScheduleState>({});
   const [search, setSearch] = useState("");
+  const [recipes, setRecipes] = useState<CardItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const weekDates = useMemo(() => getCurrentWeek(), []);
+  const initialLoadRef = useRef(false);
 
-  // Initialize sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(TouchSensor, {
@@ -22,33 +23,70 @@ export function useWeeklyPlanner() {
     }),
   );
 
-  // Load from localeStorage on mount
+  // Fetch initial data
   useEffect(() => {
-    setIsMounted(true);
-    const saved = localStorage.getItem("apothecary-schedule");
-    if (saved) {
+    async function fetchData() {
+      setIsLoading(true);
       try {
-        setSchedule(JSON.parse(saved));
-      } catch (e) {
-        console.error("Could not load planner state", e);
-      }
-    } else {
-      setSchedule({
-        [formatDate(weekDates[0])]: ["meal-5"],
-        [formatDate(weekDates[1])]: ["meal-6", "meal-1", "meal-2"],
-      });
-    }
-  }, [weekDates]);
+        // Fetch Recipes
+        const recipesRes = await fetch("/api/recipes");
+        const recipesData = await recipesRes.json();
+        
+        if (recipesData.recipes) {
+          const mappedRecipes: CardItem[] = recipesData.recipes.map((r: any) => ({
+            id: r._id,
+            title: r.name,
+            category: r.category,
+            calories: r.totalNutrition?.calories || 0,
+            protein: r.totalNutrition?.protein || 0,
+            time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
+            minutes: (r.prepTime || 0) + (r.cookTime || 0),
+            imageurl: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
+          }));
+          setRecipes(mappedRecipes);
+        }
 
-  // Save to localStorage on changes
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("apothecary-schedule", JSON.stringify(schedule));
+        // Fetch Planner
+        const plannerRes = await fetch("/api/planner");
+        const plannerData = await plannerRes.json();
+        if (plannerData.schedule) {
+          // MongoDB Map comes back as an object, which matches our ScheduleState
+          setSchedule(plannerData.schedule);
+        }
+      } catch (error) {
+        console.error("Failed to fetch planner data:", error);
+      } finally {
+        setIsLoading(false);
+        setIsMounted(true);
+        initialLoadRef.current = true;
+      }
     }
-  }, [schedule, isMounted]);
+
+    fetchData();
+  }, []);
+
+  // Auto-save to backend
+  useEffect(() => {
+    if (!initialLoadRef.current) return;
+
+    const savePlanner = async () => {
+      try {
+        await fetch("/api/planner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ schedule }),
+        });
+      } catch (error) {
+        console.error("Failed to save planner:", error);
+      }
+    };
+
+    const timeoutId = setTimeout(savePlanner, 1000); // Debounce save
+    return () => clearTimeout(timeoutId);
+  }, [schedule]);
 
   // Computed state
-  const visibleCards = useMemo(() => filterCards(mockCards, search), [search]);
+  const visibleCards = useMemo(() => filterCards(recipes, search), [recipes, search]);
   const unscheduledCards = useMemo(
     () => getUnscheduledCards(visibleCards, schedule),
     [visibleCards, schedule],
@@ -75,6 +113,7 @@ export function useWeeklyPlanner() {
 
   return {
     isMounted,
+    isLoading,
     schedule,
     search,
     setSearch,
@@ -85,6 +124,6 @@ export function useWeeklyPlanner() {
     handleRemove,
     handleAdd,
     sensors,
-    mockCards,
+    mockCards: recipes, // Renaming recipes to mockCards to avoid breaking page.tsx for now
   };
 }

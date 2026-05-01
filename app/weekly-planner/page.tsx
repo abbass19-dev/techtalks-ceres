@@ -8,6 +8,9 @@ import PlannerSummary from "@/app/components/PlannerSummary";
 import { getWeekRangeLabel, formatDate } from "@/lib/utils/plannerUtils";
 import { useWeeklyPlanner } from "@/hooks/useWeeklyPlanner";
 import { DndContext } from "@dnd-kit/core";
+import { Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { DEFAULT_GOALS } from "@/lib/constants/dashboard";
 
 export default function WeeklyPlanner() {
   const {
@@ -24,20 +27,34 @@ export default function WeeklyPlanner() {
     sensors,
     mockCards,
   } = useWeeklyPlanner();
-
+  const [goals, setGoals] = useState<typeof DEFAULT_GOALS | null>(null);
+  useEffect(() => {
+    fetch("/api/goals")
+      .then((res) => res.json())
+      .then((data) => setGoals(data.goals));
+  }, []);
+  const g = goals || DEFAULT_GOALS;
+  const dailyGoals = {
+    calories: g.dailyCalories,
+    protein: g.dailyProtein,
+    carbs: g.dailyCarbs,
+    fat: g.dailyFat,
+  };
   if (!isMounted || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f5f7fb]">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent mx-auto"></div>
-          <p className="text-slate-600 font-medium">Loading your Apothecary Planner...</p>
+          <p className="text-slate-600 font-medium">
+            Loading your Apothecary Planner...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb]">
+  <div className="min-h-screen bg-[#f5f7fb] pb-20 sm:pb-16">
       <Navbar />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="min-h-screen bg-[#f5f7fb] px-3 py-4 sm:px-4 md:px-6 lg:px-8">
@@ -75,7 +92,7 @@ export default function WeeklyPlanner() {
                       className="w-full rounded-[14px] border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-900 outline-none transition focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                     />
                     <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                      🔍
+                      <Search className="h-4 w-4 ml-2" />
                     </span>
                   </div>
 
@@ -132,6 +149,7 @@ export default function WeeklyPlanner() {
                           onRemove={handleRemove}
                           onAdd={handleAdd}
                           unscheduledCards={unscheduledCards}
+                          dailyGoals={dailyGoals}
                         />
                       );
                     })}
@@ -143,5 +161,5 @@ export default function WeeklyPlanner() {
         </div>
       </DndContext>
     </div>
-  );``
+  );
 }

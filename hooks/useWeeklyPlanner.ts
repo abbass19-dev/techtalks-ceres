@@ -23,12 +23,10 @@ export function useWeeklyPlanner() {
     }),
   );
 
-  // Fetch initial data
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        // Fetch User's Recipes Only
         const recipesRes = await fetch("/api/recipes?userOnly=true");
         const recipesData = await recipesRes.json();
 
@@ -38,8 +36,8 @@ export function useWeeklyPlanner() {
               id: r._id,
               title: r.name,
               category: r.category,
-              calories: r.totalNutrition?.calories || 0,
-              protein: r.totalNutrition?.protein || 0,
+              calories: r.nutritionPerServing?.calories ? Math.round(r.nutritionPerServing.calories) : Math.round((r.totalNutrition?.calories || 0) / (r.servings || 1)),
+              protein: r.nutritionPerServing?.protein ? Math.round(r.nutritionPerServing.protein) : Math.round((r.totalNutrition?.protein || 0) / (r.servings || 1)),
               time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
               minutes: (r.prepTime || 0) + (r.cookTime || 0),
               image: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
@@ -48,11 +46,9 @@ export function useWeeklyPlanner() {
           setRecipes(mappedRecipes);
         }
 
-        // Fetch Planner
         const plannerRes = await fetch("/api/planner");
         const plannerData = await plannerRes.json();
         if (plannerData.schedule) {
-          // MongoDB Map comes back as an object, which matches our ScheduleState
           setSchedule(plannerData.schedule);
         }
       } catch (error) {
@@ -129,6 +125,6 @@ export function useWeeklyPlanner() {
     handleRemove,
     handleAdd,
     sensors,
-    mockCards: recipes, // Renaming recipes to mockCards to avoid breaking page.tsx for now
+    mockCards: recipes,
   };
 }

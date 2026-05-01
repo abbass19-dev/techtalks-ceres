@@ -14,6 +14,7 @@ export default function DayColumn({
   onRemove,
   onAdd,
   unscheduledCards,
+  dailyGoals,
 }: {
   date: Date;
   items: string[];
@@ -21,6 +22,7 @@ export default function DayColumn({
   onRemove: (dateKey: string, cardId: string) => void;
   onAdd: (dateKey: string, cardId: string) => void;
   unscheduledCards: CardItem[];
+  dailyGoals?: { calories: number; protein: number };
 }) {
   const dateKey = formatDate(date);
   const { isOver, setNodeRef } = useDroppable({
@@ -41,10 +43,27 @@ export default function DayColumn({
 
   const totalCalories = dayCards.reduce((sum, card) => sum + card.calories, 0);
   const totalProtein = dayCards.reduce((sum, card) => sum + card.protein, 0);
+  const calGoal = dailyGoals?.calories || 2000;
+  const proGoal = dailyGoals?.protein || 120;
   const [open, setOpen] = useState(false);
   const CARDS_PER_PAGE = 3;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(unscheduledCards.length / CARDS_PER_PAGE);
+  const today = new Date();
+
+  const isToday =
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate();
+
+  const TODAY_COLUMN_CLASS =
+    "border-[#00A859] bg-gradient-to-b from-emerald-50/80 to-white shadow-sm ring-1 ring-emerald-100";
+
+  const NORMAL_COLUMN_CLASS =
+    "border-slate-200 bg-white hover:border-slate-300";
+
+  const DRAG_OVER_COLUMN_CLASS =
+    "border-[#00A859] bg-emerald-50 shadow-md ring-2 ring-[#00A859]/20";
 
   const paginatedCards = useMemo(() => {
     const start = (currentPage - 1) * CARDS_PER_PAGE;
@@ -60,10 +79,12 @@ export default function DayColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`h-full min-h-[420px] rounded-[20px] border p-3 transition md:p-3.5 ${
+      className={`h-full rounded-[20px] border p-3 transition md:p-3.5 ${
         isOver
-          ? "border-emerald-400 bg-emerald-50/80"
-          : "border-slate-200 bg-white"
+          ? DRAG_OVER_COLUMN_CLASS
+          : isToday
+            ? TODAY_COLUMN_CLASS
+            : NORMAL_COLUMN_CLASS
       }`}
     >
       <div className="mb-3">
@@ -80,32 +101,45 @@ export default function DayColumn({
           </span>
         </div>
         <div>
-          <div className="mb-1 flex items-center justify-between text-[10px] uppercase  text-slate-400 ">
-            <span>Calories</span>
-            <p className="text-[10px]">
-              {totalCalories} <span className="text-[6px]">kcal</span>
-            </p>
+          <div className="mb-2 text-[10px] uppercase text-slate-400">
+            <span className="mb-1 block">Calories</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-semibold text-slate-700">
+                {totalCalories}
+              </span>
+              <span className="text-[9px] text-slate-400">
+                / {calGoal} kcal
+              </span>
+            </div>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-200">
             <div
-              className="h-1.5 rounded-full bg-cyan-400 transition-all"
+              className={`h-1.5 rounded-full transition-all ${
+                totalCalories > calGoal ? "bg-red-400" : "bg-cyan-400"
+              }`}
               style={{
-                width: `${Math.min((totalCalories / 2000) * 100, 100)}%`,
+                width: `${Math.min((totalCalories / calGoal) * 100, 100)}%`,
               }}
             />
           </div>
         </div>
-
         <div>
-          <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-[0.12em] text-slate-400">
-            <span>Protein</span>
-            <span>{totalProtein}g</span>
+          <div className="mb-2 text-[10px] uppercase text-slate-400">
+            <span className="mb-1 block">Protein</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-semibold text-slate-700">
+                {totalProtein} g
+              </span>
+              <span className="text-[9px] text-slate-400">/ {proGoal}g</span>
+            </div>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-200">
             <div
-              className="h-1.5 rounded-full bg-emerald-400 transition-all"
+              className={`h-1.5 rounded-full transition-all ${
+                totalProtein > proGoal ? "bg-red-400" : "bg-emerald-400"
+              }`}
               style={{
-                width: `${Math.min((totalProtein / 120) * 100, 100)}%`,
+                width: `${Math.min((totalProtein / proGoal) * 100, 100)}%`,
               }}
             />
           </div>
@@ -114,7 +148,7 @@ export default function DayColumn({
       <div className="space-y-2">
         {dayCards.length === 0 ? (
           <button
-            className="flex h-[120px] w-full flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-300 bg-slate-50 text-[11px] text-slate-400 hover:border-green-300 hover:bg-green-100 hover:text-green-700"
+            className="flex h-[104px] w-full flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-300 bg-slate-50 text-[11px] text-slate-400 hover:border-green-300 hover:bg-green-100 hover:text-green-700"
             onClick={() => setOpen(true)}
           >
             <UtensilsCrossed className="h-5 w-5" />
@@ -134,11 +168,11 @@ export default function DayColumn({
               </div>
             ))}
             <button
-              className="flex h-[120px] w-full flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-300 bg-slate-50 text-[11px] text-slate-400 hover:border-green-300 hover:bg-green-100 hover:text-green-700"
+              className="flex h-[104px] w-full flex-col items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-300 bg-slate-50 text-[11px] text-slate-400 hover:border-green-300 hover:bg-green-100 hover:text-green-700"
               onClick={() => setOpen(true)}
             >
               <UtensilsCrossed className="h-5 w-5" />
-              <span>PLAN DAY</span>
+              <span>PLAN</span>
             </button>
           </>
         )}

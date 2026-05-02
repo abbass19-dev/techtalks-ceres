@@ -247,23 +247,30 @@ export default function AddRecipePage() {
                     <label className="mb-2 block text-sm font-medium text-slate-600">
                       Visibility
                     </label>
-                    <div className="flex gap-3">
-                      {(["private", "public"] as const).map((option) => (
-                        <button
-                          type="button"
-                          key={option}
-                          onClick={() =>
-                            setRecipe({ ...recipe, visibility: option })
-                          }
-                          className={`rounded-xl px-5 py-3 text-sm font-medium transition-all ${
-                            recipe.visibility === option
-                              ? "bg-green-600 text-white shadow-sm"
-                              : "bg-[#f0f4ff] text-slate-600 hover:bg-[#e8ecf6]"
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={recipe.visibility === "public"}
+                        onClick={() =>
+                          setRecipe({
+                            ...recipe,
+                            visibility: recipe.visibility === "public" ? "private" : "public",
+                          })
+                        }
+                        className={`relative h-6 w-11 rounded-full transition-colors ${
+                          recipe.visibility === "public" ? "bg-green-600" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                            recipe.visibility === "public" ? "translate-x-5" : "translate-x-0"
                           }`}
-                        >
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
-                        </button>
-                      ))}
+                        />
+                      </button>
+                      <span className="text-sm font-medium text-slate-600">
+                        {recipe.visibility === "public" ? "Public" : "Private"}
+                      </span>
                     </div>
                   </div>
                 </div>

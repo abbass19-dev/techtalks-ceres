@@ -3,7 +3,7 @@ import { jwtVerify } from "jose";
 import { connectToDatabase } from "@/lib/db";
 import { recipeService } from "@/lib/services/recipe.service";
 import { createRecipeSchema } from "@/lib/validations/recipe";
-import {parseRecipeRequest,RequestParseError,} from "@/lib/utils/requestParser";
+import { parseRecipeRequest, RequestParseError } from "@/lib/utils/requestParser";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);

@@ -107,10 +107,10 @@ export default function AddRecipePage() {
   };
 
   return (
-    <>
+    <main className="bg-white">
       <Navbar />
 
-      <div className="min-h-screen bg-[#f8faff] p-6 font-sans text-slate-900 lg:p-12">
+      <div className="min-h-screen bg-white p-6 font-sans text-slate-900 lg:p-12">
         <div className="mx-auto max-w-6xl">
           <header className="mb-10">
             <h1 className="mb-2 text-3xl font-bold text-[#1e293b] sm:text-4xl">
@@ -609,6 +609,6 @@ export default function AddRecipePage() {
       </div>
 
       <Footer />
-    </>
+    </main>
   );
 }

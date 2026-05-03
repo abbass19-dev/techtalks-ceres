@@ -37,7 +37,7 @@ export default function PlannerSummary({
     { label: "Weekly Calories", value: `${weeklyTotal.calories}` },
     { label: "Weekly Protein", value: `${weeklyTotal.protein}g` },
     { label: "Days Planned", value: `${daysPlanned}` },
-    { label: "Meals Remaining", value: `${mealsRemaining}` },
+    { label: "Recipes Remaining", value: `${mealsRemaining}` },
   ];
 
   return (

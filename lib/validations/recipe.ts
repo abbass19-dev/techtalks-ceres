@@ -17,5 +17,6 @@ export const createRecipeSchema = z.object({
       unit: z.string().min(1),
     })
   ),
+  visibility: z.enum(["public", "private"]).default("private"),
 });
 export type CreateRecipeInput = z.infer<typeof createRecipeSchema>;

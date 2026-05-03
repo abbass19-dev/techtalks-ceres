@@ -9,7 +9,7 @@ export const recipeRepository = {
 
   async findAll() {
     await connectToDatabase();
-    return Recipe.find().sort({ createdAt: -1 }).exec();
+    return Recipe.find({ visibility: "public" }).sort({ createdAt: -1 }).exec();
   },
 
   async findById(id: string) {

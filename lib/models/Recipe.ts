@@ -59,6 +59,7 @@ export interface IRecipe {
       vitaminE?: number;
     };
   };
+  visibility: "public" | "private";
 }
 
 export interface IRecipeDocument extends IRecipe, Document {}
@@ -165,6 +166,11 @@ const RecipeSchema = new Schema(
         vitaminD: { type: Number, default: 0 },
         vitaminE: { type: Number, default: 0 },
       },
+    },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "private",
     },
   },
   {

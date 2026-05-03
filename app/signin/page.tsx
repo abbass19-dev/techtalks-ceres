@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -7,32 +8,31 @@ import { FormEvent, useState } from "react";
 
 export default function SigninPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // ✅ stop default reload
-    e.stopPropagation(); // ✅ extra safety
-
-    console.log("SUBMIT TRIGGERED");
+    e.preventDefault();
+    e.stopPropagation();
 
     setError("");
-    setLoading(true);
 
     if (!email || !password) {
       setError("All fields are required");
-      setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // ✅ important for cookies
+        credentials: "include",
       });
 
       const result = await response.json();
@@ -42,16 +42,12 @@ export default function SigninPage() {
         return;
       }
 
-      console.log("LOGIN SUCCESS → redirect");
-
-      // ✅ use Next router (no full reload)
       router.push("/home");
-
     } catch (err) {
       console.error("Signin error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
-      setLoading(false); // ✅ prevent freeze
+      setLoading(false);
     }
   };
 
@@ -73,7 +69,6 @@ export default function SigninPage() {
           </div>
 
           <form className="w-full space-y-4" onSubmit={handleSubmit}>
-            {/* EMAIL */}
             <div className="flex flex-col space-y-1.5 w-full">
               <label htmlFor="email" className="text-sm text-gray-700 ml-1">
                 Email Address
@@ -88,16 +83,12 @@ export default function SigninPage() {
               />
             </div>
 
-            {/* PASSWORD */}
             <div className="flex flex-col space-y-1.5 w-full">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="text-sm text-gray-700 ml-1">
                   Password
                 </label>
-                <Link
-                  href="/reset-password"
-                  className="text-[#3b82f6] text-[12px]"
-                >
+                <Link href="/reset-password" className="text-[#3b82f6] text-[12px]">
                   Forgot Password?
                 </Link>
               </div>
@@ -118,7 +109,6 @@ export default function SigninPage() {
               )}
             </div>
 
-            {/* BUTTON */}
             <div className="pt-2 w-full">
               <button
                 type="submit"
@@ -131,11 +121,8 @@ export default function SigninPage() {
           </form>
 
           <div className="mt-8 text-[15px] text-gray-800">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-[#3b82f6] font-medium hover:underline"
-            >
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-[#3b82f6] font-medium hover:underline">
               Create Account
             </Link>
           </div>

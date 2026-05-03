@@ -5,43 +5,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {Utensils,Clock,BookOpen,ListOrdered,ImagePlus,Plus,X,ChevronDown,} from "lucide-react";
 import {CATEGORIES, UNITS, createIngredient, createInstruction, initialRecipe, updateIngredientById, removeIngredientById, updateInstructionById, removeInstructionById,} from "@/lib/constants/recipeForm";
-import { RecipeForm, Ingredient, Instruction ,FoodSuggestion} from "@/lib/utils/Types";
-
-function useFoodSearch(query: string, enabled: boolean) {
-  const [results, setResults] = useState<FoodSuggestion[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!enabled || query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `/api/food/search?query=${encodeURIComponent(query)}`,
-          { signal: controller.signal },
-        );
-        const data = await res.json();
-        setResults(Array.isArray(data.suggestions) ? data.suggestions : []);
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [query, enabled]);
-
-  return { results, loading };
-}
+import { RecipeForm, Ingredient, Instruction } from "@/lib/utils/Types";
+import { useFoodSearch, FoodSuggestion } from "@/lib/hooks/useFoodSearch";
 
 export default function AddRecipePage() {
   const [recipe, setRecipe] = useState<RecipeForm>(initialRecipe);
@@ -104,6 +69,7 @@ export default function AddRecipePage() {
       "data",
       JSON.stringify({
         ...recipe,
+        visibility: recipe.visibility === "public" ? "public" : "private", 
         ingredients: ingredients.filter(
           (item) => item.name || item.quantity || item.unit,
         ),

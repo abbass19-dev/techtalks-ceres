@@ -27,7 +27,7 @@ export const createInstruction = (): Instruction => ({
   text: "",
 });
 
-// ✅ UPDATED HERE
+
 export const initialRecipe: RecipeForm = {
   name: "",
   description: "",
@@ -35,7 +35,7 @@ export const initialRecipe: RecipeForm = {
   servings: "",
   prepTime: "",
   cookTime: "",
-  visibility: "private", // ⭐ DEFAULT VALUE
+  visibility: "private", 
 };
 
 export const updateIngredientById = (

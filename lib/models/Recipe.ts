@@ -8,6 +8,7 @@ export interface IRecipe {
   prepTime?: number;
   cookTime?: number;
   imageUrl?: string;
+  visibility: "public" | "private";
   ingredients: {
     name: string;
     quantity: number;
@@ -70,6 +71,16 @@ const RecipeSchema = new Schema(
       type: String,
       required: false,
     },
+
+    
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "private",
+      required: true,
+      index: true,
+    },
+
     ingredients: [
       {
         name: String,

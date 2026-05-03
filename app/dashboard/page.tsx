@@ -71,11 +71,47 @@ export default function DashboardPage() {
     [totals, goals, period],
   );
 
-  const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/weekly-planner/${id}`, {
-      method: "DELETE",
-    }).catch(() => null);
-    if (res?.ok) setMeals((prev) => prev.filter((m) => m._id !== id));
+  const handleRemove = async (mealId: string) => {
+    try {
+      const plannerRes = await fetch("/api/planner");
+      const plannerData = await plannerRes.json();
+      const currentSchedule = plannerData.schedule || {};
+
+      const newSchedule = { ...currentSchedule };
+      let changed = false;
+
+      Object.keys(newSchedule).forEach((day) => {
+        const originalLength = newSchedule[day].length;
+        newSchedule[day] = newSchedule[day].filter((id: string) => id !== mealId);
+        if (newSchedule[day].length !== originalLength) changed = true;
+      });
+
+      if (!changed) return;
+
+      const saveRes = await fetch("/api/planner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ schedule: newSchedule }),
+      });
+
+      if (saveRes.ok) {
+        const [dashRes, goalsRes] = await Promise.all([
+          fetch(`/api/dashboard?period=${period}`),
+          fetch("/api/goals"),
+        ]);
+
+        if (dashRes.ok && goalsRes.ok) {
+          const dash = await dashRes.json();
+          const goalsData = await goalsRes.json();
+          setTotals(dash.totals || EMPTY_TOTALS);
+          setNutrientPercentages(dash.nutrientPercentages || null);
+          setMeals(dash.recipes || []);
+          setGoals(goalsData.goals || null);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to remove meal:", error);
+    }
   };
 
   return (
@@ -273,7 +309,7 @@ export default function DashboardPage() {
             <div className="bg-white p-6 rounded-2xl border border-gray-100">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-semibold text-[#111827]">
-                  {period === "month" ? "Monthly" : "Weekly"} Planner Meals
+                  Weekly Planner Meals
                 </h2>
                 {meals.length > 0 && (
                   <span className="text-xs text-gray-400">
@@ -324,7 +360,7 @@ export default function DashboardPage() {
                           kcal
                         </span>
                         <button
-                          onClick={() => handleDelete(meal._id)}
+                          onClick={() => handleRemove(meal._id)}
                           className="text-gray-400 hover:text-red-500 transition"
                         >
                           <Trash2 size={16} />

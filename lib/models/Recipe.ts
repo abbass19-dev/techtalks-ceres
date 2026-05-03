@@ -26,6 +26,7 @@ export interface IRecipe {
     carbs: number;
     fat: number;
   };
+  visibility: "public" | "private";
 }
 
 export interface IRecipeDocument extends IRecipe, Document {}
@@ -89,6 +90,11 @@ const RecipeSchema = new Schema(
       protein: { type: Number, default: 0 },
       carbs: { type: Number, default: 0 },
       fat: { type: Number, default: 0 },
+    },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "private",
     },
   },
   {

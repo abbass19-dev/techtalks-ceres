@@ -41,7 +41,7 @@ export interface RecipeForm {
   servings: string;
   prepTime: string;
   cookTime: string;
-  visibility: "public" | "private"; // ✅ ADDED (important)
+  visibility: "public" | "private";
 }
 
 export interface Ingredient {

@@ -242,6 +242,30 @@ export default function AddRecipePage() {
                       </div>
                     </div>
                   </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-600">
+                      Visibility
+                    </label>
+                    <div className="flex gap-3">
+                      {(["private", "public"] as const).map((option) => (
+                        <button
+                          type="button"
+                          key={option}
+                          onClick={() =>
+                            setRecipe({ ...recipe, visibility: option })
+                          }
+                          className={`rounded-xl px-5 py-3 text-sm font-medium transition-all ${
+                            recipe.visibility === option
+                              ? "bg-green-600 text-white shadow-sm"
+                              : "bg-[#f0f4ff] text-slate-600 hover:bg-[#e8ecf6]"
+                          }`}
+                        >
+                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </section>
 

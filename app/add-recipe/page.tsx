@@ -5,43 +5,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {Utensils,Clock,BookOpen,ListOrdered,ImagePlus,Plus,X,ChevronDown,} from "lucide-react";
 import {CATEGORIES, UNITS, createIngredient, createInstruction, initialRecipe, updateIngredientById, removeIngredientById, updateInstructionById, removeInstructionById,} from "@/lib/constants/recipeForm";
-import { RecipeForm, Ingredient, Instruction ,FoodSuggestion} from "@/lib/utils/Types";
-
-function useFoodSearch(query: string, enabled: boolean) {
-  const [results, setResults] = useState<FoodSuggestion[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!enabled || query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `/api/food/search?query=${encodeURIComponent(query)}`,
-          { signal: controller.signal },
-        );
-        const data = await res.json();
-        setResults(Array.isArray(data.suggestions) ? data.suggestions : []);
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [query, enabled]);
-
-  return { results, loading };
-}
+import { RecipeForm, Ingredient, Instruction } from "@/lib/utils/Types";
+import { useFoodSearch, FoodSuggestion } from "@/lib/hooks/useFoodSearch";
 
 export default function AddRecipePage() {
   const [recipe, setRecipe] = useState<RecipeForm>(initialRecipe);
@@ -104,6 +69,7 @@ export default function AddRecipePage() {
       "data",
       JSON.stringify({
         ...recipe,
+        visibility: recipe.visibility === "public" ? "public" : "private", 
         ingredients: ingredients.filter(
           (item) => item.name || item.quantity || item.unit,
         ),
@@ -247,23 +213,30 @@ export default function AddRecipePage() {
                     <label className="mb-2 block text-sm font-medium text-slate-600">
                       Visibility
                     </label>
-                    <div className="flex gap-3">
-                      {(["private", "public"] as const).map((option) => (
-                        <button
-                          type="button"
-                          key={option}
-                          onClick={() =>
-                            setRecipe({ ...recipe, visibility: option })
-                          }
-                          className={`rounded-xl px-5 py-3 text-sm font-medium transition-all ${
-                            recipe.visibility === option
-                              ? "bg-green-600 text-white shadow-sm"
-                              : "bg-[#f0f4ff] text-slate-600 hover:bg-[#e8ecf6]"
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={recipe.visibility === "public"}
+                        onClick={() =>
+                          setRecipe({
+                            ...recipe,
+                            visibility: recipe.visibility === "public" ? "private" : "public",
+                          })
+                        }
+                        className={`relative h-6 w-11 rounded-full transition-colors ${
+                          recipe.visibility === "public" ? "bg-green-600" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                            recipe.visibility === "public" ? "translate-x-5" : "translate-x-0"
                           }`}
-                        >
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
-                        </button>
-                      ))}
+                        />
+                      </button>
+                      <span className="text-sm font-medium text-slate-600">
+                        {recipe.visibility === "public" ? "Public" : "Private"}
+                      </span>
                     </div>
                   </div>
                 </div>

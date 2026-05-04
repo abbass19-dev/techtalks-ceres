@@ -5,43 +5,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {Utensils,Clock,BookOpen,ListOrdered,ImagePlus,Plus,X,ChevronDown,} from "lucide-react";
 import {CATEGORIES, UNITS, createIngredient, createInstruction, initialRecipe, updateIngredientById, removeIngredientById, updateInstructionById, removeInstructionById,} from "@/lib/constants/recipeForm";
-import { RecipeForm, Ingredient, Instruction ,FoodSuggestion} from "@/lib/utils/Types";
-
-function useFoodSearch(query: string, enabled: boolean) {
-  const [results, setResults] = useState<FoodSuggestion[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!enabled || query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `/api/food/search?query=${encodeURIComponent(query)}`,
-          { signal: controller.signal },
-        );
-        const data = await res.json();
-        setResults(Array.isArray(data.suggestions) ? data.suggestions : []);
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [query, enabled]);
-
-  return { results, loading };
-}
+import { RecipeForm, Ingredient, Instruction } from "@/lib/utils/Types";
+import { useFoodSearch, FoodSuggestion } from "@/lib/hooks/useFoodSearch";
 
 export default function AddRecipePage() {
   const [recipe, setRecipe] = useState<RecipeForm>(initialRecipe);
@@ -51,6 +16,7 @@ export default function AddRecipePage() {
   const [instructions, setInstructions] = useState<Instruction[]>([
     createInstruction(),
   ]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [openSearchId, setOpenSearchId] = useState<number | null>(null);
   const [status, setStatus] = useState({
@@ -98,17 +64,26 @@ export default function AddRecipePage() {
       return;
     }
 
-    const res = await fetch("/api/recipes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
         ...recipe,
+        visibility: recipe.visibility === "public" ? "public" : "private", 
         ingredients: ingredients.filter(
           (item) => item.name || item.quantity || item.unit,
         ),
         instructions: instructions.filter((item) => item.text?.trim()),
-        imagePreview,
-      }),
+      })
+    );
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
+    const res = await fetch("/api/recipes", {
+      method: "POST",
+      body: formData,
     });
 
     const data = await res.json();
@@ -127,14 +102,15 @@ export default function AddRecipePage() {
     setRecipe(initialRecipe);
     setIngredients([createIngredient()]);
     setInstructions([createInstruction()]);
+    setImageFile(null);
     setImagePreview(null);
   };
 
   return (
-    <>
+    <main className="bg-white">
       <Navbar />
 
-      <div className="min-h-screen bg-[#f8faff] p-6 font-sans text-slate-900 lg:p-12">
+      <div className="min-h-screen bg-white p-6 font-sans text-slate-900 lg:p-12">
         <div className="mx-auto max-w-6xl">
           <header className="mb-10">
             <h1 className="mb-2 text-3xl font-bold text-[#1e293b] sm:text-4xl">
@@ -230,6 +206,37 @@ export default function AddRecipePage() {
                           People
                         </span>
                       </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-600">
+                      Visibility
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={recipe.visibility === "public"}
+                        onClick={() =>
+                          setRecipe({
+                            ...recipe,
+                            visibility: recipe.visibility === "public" ? "private" : "public",
+                          })
+                        }
+                        className={`relative h-6 w-11 rounded-full transition-colors ${
+                          recipe.visibility === "public" ? "bg-green-600" : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                            recipe.visibility === "public" ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm font-medium text-slate-600">
+                        {recipe.visibility === "public" ? "Public" : "Private"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -524,6 +531,8 @@ export default function AddRecipePage() {
                     const file = e.target.files?.[0];
                     if (!file) return;
 
+                    setImageFile(file);
+
                     const reader = new FileReader();
                     reader.onload = () =>
                       setImagePreview(reader.result as string);
@@ -542,6 +551,7 @@ export default function AddRecipePage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setImageFile(null);
                         setImagePreview(null);
                       }}
                       className="absolute top-2 right-2 rounded-full bg-white/80 p-1 text-red-500 backdrop-blur-sm hover:bg-white"
@@ -599,6 +609,6 @@ export default function AddRecipePage() {
       </div>
 
       <Footer />
-    </>
+    </main>
   );
 }

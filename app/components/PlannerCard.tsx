@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import type { CardItem } from "@/lib/utils/Types";
-
+import Image from "next/image";
 export default function PlannerCard({
   item,
   small = false,
@@ -41,10 +41,12 @@ export default function PlannerCard({
       } ${small ? "p-2.5" : "p-3"}`}
     >
       <div className="flex gap-2.5">
-        {!scheduled && (
-          <img
+        {!scheduled && item.image && (
+          <Image
             src={item.image}
             alt={item.title}
+            width={64}
+            height={64}
             className={`shrink-0 rounded-[14px] object-cover ${
               small ? "h-12 w-12 sm:h-14 sm:w-14" : "h-16 w-16"
             }`}
@@ -52,13 +54,13 @@ export default function PlannerCard({
         )}
 
         <div className="min-w-0 flex-1">
-          <p
-            className={`mt-0.5  text-green-600 mb-1 ${
-              small ? "text-[10px]" : "text-[10px]"
-            }`}
-          >
-            {item.time}
-          </p>
+          {scheduled && (
+            <div
+              className={`mt-0.5 mb-1 flex w-full items-center justify-between ${small ? "h-4" : "h-4"}`}
+            >
+              <p className="text-[10px] text-green-600">{item.time}</p>
+            </div>
+          )}
           <p
             className={`wrap-break-word whitespace-normal font-semibold text-slate-900 ${
               small ? "text-[12px]" : "text-sm"
@@ -68,10 +70,10 @@ export default function PlannerCard({
           </p>
           {!scheduled && (
             <p className="mt-0.5 text-[10px] text-slate-500">
-              {item.category} · {item.minutes} min
+              {item.category}· {item.minutes} min
             </p>
           )}
-          <div className="mt-2 grid items-center justify-between">
+          <div className="mt-1 grid items-center justify-between">
             <div className="flex flex-wrap gap-1.5">
               <span className="rounded-full bg-amber-50 px-2 py-1 text-[9px] font-semibold text-amber-700">
                 {item.calories} CAL

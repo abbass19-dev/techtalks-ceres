@@ -9,6 +9,7 @@ export const createRecipeSchema = z.object({
   prepTime: z.coerce.number().int().nonnegative().optional(),
   cookTime: z.coerce.number().int().nonnegative().optional(),
   imageUrl: z.string().url("Must be a valid URL").optional(),
+  visibility: z.enum(["public", "private"]).default("private"),
 
   ingredients: z.array(
     z.object({
@@ -18,4 +19,4 @@ export const createRecipeSchema = z.object({
     })
   ),
 });
-export type CreateRecipeInput = z.infer<typeof createRecipeSchema>;
+export type CreateRecipeInput = z.infer<typeof createRecipeSchema>;

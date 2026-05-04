@@ -4,7 +4,6 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { mockCards } from "@/lib/data/mockData";
 import { Search, Heart } from "lucide-react";
 import { Recipe } from "@/lib/utils/Types";
 
@@ -35,11 +34,34 @@ export default function CommunityRecipesPage() {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
+  // ✅ UPDATED: fetch from backend instead of mock data
   useEffect(() => {
-    setTimeout(() => {
-      setRecipes(mockCards);
-      setLoading(false);
-    }, 500);
+    const fetchRecipes = async () => {
+      try {
+        const res = await fetch("/api/community-recipes");
+        const data = await res.json();
+
+        const mappedRecipes: Recipe[] = (data.recipes || []).map(
+          (item: any) => ({
+            id: item._id,
+            title: item.name,
+            image: item.imageUrl,
+            calories: item.totalNutrition?.calories || 0,
+            protein: item.totalNutrition?.protein || 0,
+            category: item.category,
+            author: "Community",
+          }),
+        );
+
+        setRecipes(mappedRecipes);
+      } catch (err) {
+        console.error("Failed to fetch recipes", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
   }, []);
 
   const filteredRecipes = useMemo(() => {

@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -7,12 +8,16 @@ import { FormEvent, useState } from "react";
 
 export default function SigninPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+
     setError("");
 
     if (!email || !password) {
@@ -20,11 +25,14 @@ export default function SigninPage() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
       const result = await response.json();
@@ -36,14 +44,17 @@ export default function SigninPage() {
 
       router.push("/home");
     } catch (err) {
-      setError("Something went wrong. Please try again.");
       console.error("Signin error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen w-full flex bg-white font-sans">
       <Leftside />
+
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-100 flex flex-col items-center">
           <Image src="/images/logo.png" alt="Logo" width={150} height={150} />
@@ -66,36 +77,33 @@ export default function SigninPage() {
                 id="email"
                 type="email"
                 required
-                className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] focus:bg-white transition-all text-gray-900 placeholder:text-gray-400 shadow-sm"
+                className="w-full px-5 py-4 bg-gray-50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859]"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
             <div className="flex flex-col space-y-1.5 w-full">
               <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-sm text-gray-700 ml-1"
-                >
+                <label htmlFor="password" className="text-sm text-gray-700 ml-1">
                   Password
                 </label>
-                <Link
-                  href="/reset-password"
-                  className="text-[#3b82f6] text-[12px]"
-                >
+                <Link href="/reset-password" className="text-[#3b82f6] text-[12px]">
                   Forgot Password?
                 </Link>
               </div>
+
               <input
                 id="password"
                 type="password"
                 required
-                className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] focus:bg-white transition-all text-gray-800 placeholder:text-gray-400 shadow-sm"
+                className="w-full px-5 py-4 bg-gray-50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859]"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+
               {error && (
-                <p className="text-red-500 text-sm bg-red-100 p-2 rounded-[15px] mt-3 text-center ">
+                <p className="text-red-500 text-sm bg-red-100 p-2 rounded-[15px] mt-3 text-center">
                   {error}
                 </p>
               )}
@@ -104,19 +112,17 @@ export default function SigninPage() {
             <div className="pt-2 w-full">
               <button
                 type="submit"
-                className="w-full py-4 mt-2 bg-[#00A859] hover:bg-[#00964D] text-white font-bold rounded-full shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00A859] active:scale-[0.98]"
+                disabled={loading}
+                className="w-full py-4 mt-2 bg-[#00A859] text-white font-bold rounded-full shadow-md disabled:opacity-50"
               >
-                Sign In
+                {loading ? "Signing in..." : "Sign In"}
               </button>
             </div>
           </form>
 
           <div className="mt-8 text-[15px] text-gray-800">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-[#3b82f6] font-medium hover:underline"
-            >
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-[#3b82f6] font-medium hover:underline">
               Create Account
             </Link>
           </div>

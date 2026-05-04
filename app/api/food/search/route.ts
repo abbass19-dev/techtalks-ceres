@@ -1,35 +1,55 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import Ingredient from "@/lib/models/Ingredient";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
+    console.log("[FOOD_SEARCH] Connecting to database...");
     await connectToDatabase();
+    console.log("[FOOD_SEARCH] Database connected!");
 
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query")?.trim();
+
+    console.log("[FOOD_SEARCH] Query received:", query);
 
     if (!query || query.length < 2) {
       return NextResponse.json({ suggestions: [] });
     }
 
+    const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(safeQuery, "i");
+
+    console.log("[FOOD_SEARCH] Searching with regex:", regex);
+    console.log("[FOOD_SEARCH] Model collection:", Ingredient.collection.collectionName);
+
     const results = await Ingredient.find({
       $or: [
-        { name: { $regex: query, $options: "i" } },
-        { aliases: { $elemMatch: { $regex: query, $options: "i" } } },
+        { name: regex },
+        { aliases: regex },
       ],
     })
       .limit(20)
-      .select("name aliases category");
+      .select("name aliases category")
+      .lean();
+
+    console.log("[FOOD_SEARCH] Results found:", results.length);
+    if (results.length > 0) {
+      console.log("[FOOD_SEARCH] First result:", JSON.stringify(results[0]));
+    }
 
     const suggestions = results.map((item) => ({
       name: item.name,
-      aliases: item.aliases,
+      aliases: item.aliases || [],
       category: item.category,
     }));
 
     return NextResponse.json({ suggestions });
-  } catch {
-    return NextResponse.json({ suggestions: [] });
+  } catch (error) {
+    console.error("[FOOD_SEARCH] Error:", error);
+    return NextResponse.json(
+      { suggestions: [], error: (error as Error).message },
+      { status: 500 }
+    );
   }
 }

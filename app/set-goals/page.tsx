@@ -2,7 +2,7 @@
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SetGoalsPage() {
@@ -12,32 +12,52 @@ export default function SetGoalsPage() {
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
-  const [fiber, setFiber] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSave = () => {
-    if (!calories || !protein || !carbs || !fat || !fiber) {
-      setMessage("Please fill all fields");
-      return;
+useEffect(() => {
+  async function fetchGoals() {
+    try {
+      const res = await fetch("/api/goals");
+      const data = await res.json();
+
+      if (data?.goals) {
+        setCalories(data.goals.dailyCalories || "");
+        setProtein(data.goals.dailyProtein || "");
+        setCarbs(data.goals.dailyCarbs || "");
+        setFat(data.goals.dailyFat || "");
+      }
+    } catch (error) {
+      console.error("Error fetching goals:", error);
     }
+  }
 
-    const goals = {
-      calories,
-      protein,
-      carbs,
-      fat,
-      fiber,
-    };
+  fetchGoals();
+}, []);
 
-    localStorage.setItem("goals", JSON.stringify(goals));
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch("/api/goals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dailyCalories: calories,
+          dailyProtein: protein,
+          dailyCarbs: carbs,
+          dailyFat: fat,
+        }),
+      });
 
-    setMessage("Goals saved! Redirecting...");
+      if (!res.ok) return;
 
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1000);
+      setMessage("Goals saved successfully!");
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
+    } catch (error) {
+      console.error("Error saving goals:", error);
+    }
   };
-
   return (
     <>
       <div className="bg-[#F5F7F6] min-h-screen flex flex-col pb-20">
@@ -46,11 +66,11 @@ export default function SetGoalsPage() {
         <div className="flex-1 max-w-3xl mx-auto w-full px-4 md:px-6 lg:px-8 py-10">
           <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
             <h1 className="text-2xl md:text-3xl font-bold text-[#111827] mb-2">
-              Set Goals
+              Set Your Daily Goals
             </h1>
 
             <p className="text-gray-500 text-sm mb-6">
-              Set your nutrition targets.
+              Define your daily nutrition targets to track your progress.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -62,7 +82,7 @@ export default function SetGoalsPage() {
                   type="number"
                   value={calories}
                   onChange={(e) => setCalories(e.target.value)}
-                  placeholder="e.g. 2500"
+                  placeholder={calories}
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#00A859] text-black placeholder:text-gray-400"
                 />
               </div>
@@ -75,7 +95,7 @@ export default function SetGoalsPage() {
                   type="number"
                   value={protein}
                   onChange={(e) => setProtein(e.target.value)}
-                  placeholder="e.g. 160"
+                  placeholder={protein}
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#00A859] text-black placeholder:text-gray-400"
                 />
               </div>
@@ -97,47 +117,29 @@ export default function SetGoalsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Fat Goal (g)
                 </label>
+
                 <input
                   type="number"
                   value={fat}
                   onChange={(e) => setFat(e.target.value)}
-                  placeholder="e.g. 70"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#00A859] text-black placeholder:text-gray-400"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Fiber Goal (g)
-                </label>
-                <input
-                  type="number"
-                  value={fiber}
-                  onChange={(e) => setFiber(e.target.value)}
-                  placeholder="e.g. 35"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#00A859] text-black placeholder:text-gray-400"
+                  placeholder="Enter fat goal"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#00A859] text-black"
                 />
               </div>
             </div>
 
             <div className="mt-8 flex flex-col items-stretch sm:items-start gap-4">
               <button
-                onClick={handleSave}
+                onClick={handleSubmit}
                 className="bg-[#00A859] hover:bg-[#00964D] text-white px-8 py-4 rounded-xl text-sm font-semibold transition shadow-md active:scale-[0.98] w-full sm:w-auto"
               >
                 Save Goals
               </button>
 
               {message && (
-                <p
-                  className={`text-sm font-medium ${
-                    message.includes("saved")
-                      ? "text-[#00A859]"
-                      : "text-red-500"
-                  }`}
-                >
+                <div className="mt-4 text-sm text-green-600 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
                   {message}
-                </p>
+                </div>
               )}
             </div>
           </div>

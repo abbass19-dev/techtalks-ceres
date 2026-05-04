@@ -7,7 +7,7 @@ import Footer from "../components/Footer";
 
 export default function Home() {
   return (
-    <main className="pb-15 text-slate-900 md:pb-20">
+    <main className="pb-15 text-slate-900 md:pb-20 bg-white">
       <Navbar />
       <Hero />
       <HowItWorks />

@@ -1,27 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { verifyAuth } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
 import { recipeService } from "@/lib/services/recipe.service";
 import { createRecipeSchema } from "@/lib/validations/recipe";
-import { parseRecipeRequest, RequestParseError, ParsedRequest } from "@/lib/utils/requestParser";
+import { parseRecipeRequest, RequestParseError } from "@/lib/utils/requestParser";
 import { uploadImageToCloudinary } from "@/lib/services/cloudinary.service";
-
-const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
-const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
 export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
     
-    const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { payload } = await jwtVerify(token, encodedSecret);
-    const userId = payload.userId as string;
+    const userId = await verifyAuth(req);
     if (!userId) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized or invalid token" }, { status: 401 });
     }
 
     let body: unknown;

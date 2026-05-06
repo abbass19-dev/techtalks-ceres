@@ -35,7 +35,8 @@ export const initialRecipe: RecipeForm = {
   servings: "",
   prepTime: "",
   cookTime: "",
-  visibility: "private", 
+  visibility: "private",
+  status: "draft",
 };
 
 export const updateIngredientById = (

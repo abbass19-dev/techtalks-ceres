@@ -1,4 +1,5 @@
-import Recipe, { IRecipe } from "@/lib/models/Recipe";
+import Recipe from "@/lib/models/Recipe";
+import RecipeDraft from "@/lib/models/RecipeDraft";
 import { connectToDatabase } from "@/lib/db";
 
 export const recipeRepository = {
@@ -7,9 +8,16 @@ export const recipeRepository = {
     return Recipe.create(payload);
   },
 
+  async createDraft(payload: any) {
+    await connectToDatabase();
+    return RecipeDraft.create(payload);
+  },
+
   async findAll() {
     await connectToDatabase();
-    return Recipe.find({ visibility: "public" }).sort({ createdAt: -1 }).exec();
+    return Recipe.find({ visibility: "public", status: "published" })
+      .sort({ createdAt: -1 })
+      .exec();
   },
 
   async findById(id: string) {

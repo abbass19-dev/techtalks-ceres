@@ -21,10 +21,9 @@ const IngredientSchema = new mongoose.Schema(
       vitaminD: Number,
     },
   },
-  { collection: "ingredients" } // ✅ Explicit collection name
+  { collection: "ingredients" }
 );
 
-// ✅ Create text index for better search
 IngredientSchema.index({ name: "text", aliases: "text" });
 
 export default mongoose.models.Ingredient ||

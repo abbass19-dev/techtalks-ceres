@@ -44,6 +44,7 @@ export interface RecipeForm {
   prepTime: string;
   cookTime: string;
   visibility: "public" | "private";
+  status: "draft" | "published";
 }
 
 export interface Ingredient {

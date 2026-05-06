@@ -10,7 +10,7 @@ export const createRecipeSchema = z.object({
   cookTime: z.coerce.number().int().nonnegative().optional(),
   imageUrl: z.string().url("Must be a valid URL").optional(),
   visibility: z.enum(["public", "private"]).default("private"),
-
+  status: z.enum(["draft", "published"]).default("draft"),
   ingredients: z.array(
     z.object({
       name: z.string().min(1),

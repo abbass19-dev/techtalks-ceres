@@ -127,7 +127,12 @@ export const recipeService = {
         });
       }
 
-      const newRecipe = await recipeRepository.create({
+      const repoMethod =
+        input.status === "draft"
+          ? recipeRepository.createDraft
+          : recipeRepository.create;
+
+      const newRecipe = await repoMethod({
         ...input,
         userId,
         ingredients: calculatedIngredients,

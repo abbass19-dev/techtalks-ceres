@@ -1,28 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import { userRepository } from "@/lib/repositories/user.repository";
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not defined");
-}
-
-const encodedSecret = new TextEncoder().encode(JWT_SECRET);
+import { verifyAuth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.cookies.get("token")?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { payload } = await jwtVerify(token, encodedSecret);
-    const userId = payload.userId as string;
+    const userId = await verifyAuth(req);
 
     if (!userId) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized or invalid token" }, { status: 401 });
     }
 
     const user = await userRepository.findById(userId);
@@ -38,13 +23,16 @@ export async function GET(req: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         phoneNumber: user.phoneNumber,
+        weight: user.weight,
+        height: user.height,
+        age: user.age,
       },
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("API_AUTH_ME_ERROR:", error.message);
+      console.error("API_AUTH_ME_ERROR (GET):", error.message);
     }
-
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

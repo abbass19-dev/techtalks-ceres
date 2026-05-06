@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { verifyAuth } from "@/lib/auth";
 import { recipeService } from "@/lib/services/recipe.service";
-
-const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
-const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
 export async function GET(
   req: NextRequest,
@@ -13,16 +10,10 @@ export async function GET(
     const resolvedParams = await params;
     const requestedUserId = resolvedParams.id;
 
-    const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { payload } = await jwtVerify(token, encodedSecret);
-    const authUserId = payload.userId as string;
+    const authUserId = await verifyAuth(req);
     
     if (!authUserId) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized or invalid token" }, { status: 401 });
     }
 
     // High security: ensure token owner matches the [id] param

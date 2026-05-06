@@ -8,6 +8,11 @@ export interface IRecipe {
   prepTime?: number;
   cookTime?: number;
   imageUrl?: string;
+  instructions?: {
+  step: number;
+  title: string;
+  description: string;
+}[];
   visibility: "public" | "private";
   status: "draft" | "published";
 
@@ -103,6 +108,24 @@ export const RecipeSchema = new Schema(
       type: String,
       required: false,
     },
+instructions: [
+  {
+    step: {
+      type: Number,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+],
 
     
     visibility: {

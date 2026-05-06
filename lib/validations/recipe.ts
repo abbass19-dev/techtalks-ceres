@@ -11,6 +11,13 @@ export const createRecipeSchema = z.object({
   imageUrl: z.string().url("Must be a valid URL").optional(),
   visibility: z.enum(["public", "private"]).default("private"),
   status: z.enum(["draft", "published"]).default("draft"),
+  instructions: z.array(
+  z.object({
+    step: z.coerce.number().int().positive(),
+    title: z.string().min(1).trim(),
+    description: z.string().min(1).trim(),
+  })
+),
   ingredients: z.array(
     z.object({
       name: z.string().min(1),

@@ -55,8 +55,9 @@ export interface Ingredient {
 }
 
 export interface Instruction {
-  id: number;
-  text?: string;
+  id: number;       // local UI key only
+  title: string;
+  description: string;
 }
 
 export type FoodSuggestion = {
@@ -72,6 +73,8 @@ export type Recipe = {
   calories: number;
   protein: number;
   category?: string;
+  carbs: number;
+  fat: number;
   tag?: string;
   author?: string;
   visibility?: "public" | "private"; // ✅ OPTIONAL (good for later use)
@@ -96,13 +99,31 @@ export type NutritionTotals = {
   };
 };
 
+export type RecipeIngredient = {
+  name: string;
+  quantity: number;
+  unit: string;
+  gramsUsed?: number;
+};
+
+export type RecipeInstruction = {
+  step: number;
+  title: string;
+  description: string;
+};
+
 export type DashboardMeal = {
   _id: string;
   name: string;
-  image?: string;
+  description?: string;
+  imageUrl?: string;
   category?: string;
-  totalNutrition?: NutritionTotals;
   servings?: number;
+  prepTime?: number;
+  cookTime?: number;
+  instructions?: RecipeInstruction[];
+  ingredients?: RecipeIngredient[];
+  totalNutrition?: NutritionTotals;
   nutritionPerServing?: NutritionTotals;
 };
 

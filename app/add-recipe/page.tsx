@@ -78,7 +78,13 @@ export default function AddRecipePage() {
         ingredients: ingredients.filter(
           (item) => item.name || item.quantity || item.unit,
         ),
-        instructions: instructions.filter((item) => item.text?.trim()),
+        instructions: instructions
+          .filter((item) => item.title?.trim() || item.description?.trim())
+          .map((item, index) => ({
+            step: index + 1,
+            title: item.title.trim(),
+            description: item.description.trim(),
+          })),
       })
     );
 
@@ -454,21 +460,40 @@ export default function AddRecipePage() {
                         {index + 1}
                       </div>
 
-                      <textarea
-                        rows={2}
-                        placeholder="Describe this step..."
-                        className="w-full flex-1 resize-none rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
-                        value={step.text}
-                        onChange={(e) =>
-                          setInstructions(
-                            updateInstructionById(
-                              instructions,
-                              step.id,
-                              e.target.value,
-                            ),
-                          )
-                        }
-                      />
+                      <div className="flex-1 space-y-3">
+                        <input
+                          type="text"
+                          placeholder="Step title (e.g., Prep the vegetables)"
+                          className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200 text-sm font-medium"
+                          value={step.title}
+                          onChange={(e) =>
+                            setInstructions(
+                              updateInstructionById(
+                                instructions,
+                                step.id,
+                                "title",
+                                e.target.value,
+                              ),
+                            )
+                          }
+                        />
+                        <textarea
+                          rows={2}
+                          placeholder="Describe this step in detail..."
+                          className="w-full resize-none rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
+                          value={step.description}
+                          onChange={(e) =>
+                            setInstructions(
+                              updateInstructionById(
+                                instructions,
+                                step.id,
+                                "description",
+                                e.target.value,
+                              ),
+                            )
+                          }
+                        />
+                      </div>
 
                       {instructions.length > 1 && (
                         <button

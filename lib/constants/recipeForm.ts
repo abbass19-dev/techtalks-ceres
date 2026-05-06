@@ -24,7 +24,8 @@ export const createIngredient = (): Ingredient => ({
 
 export const createInstruction = (): Instruction => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
-  text: "",
+  title: "",
+  description: "",
 });
 
 
@@ -57,10 +58,11 @@ export const removeIngredientById = (items: Ingredient[], id: number) => {
 export const updateInstructionById = (
   items: Instruction[],
   id: number,
+  field: "title" | "description",
   value: string
 ) => {
   return items.map((item) =>
-    item.id === id ? { ...item, text: value } : item
+    item.id === id ? { ...item, [field]: value } : item
   );
 };
 

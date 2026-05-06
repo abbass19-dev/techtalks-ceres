@@ -1,10 +1,7 @@
-import {
-  Flame, Beef, Wheat, Droplet,
-  Bone, Hammer, Leaf, Zap,
-  Eye, Brain, Citrus, Sun, Shield,
-} from "lucide-react";
-import { NutritionTotals, DailyNutrientIntake, BalanceItem, StatItem } from "@/lib/utils/Types";
+import { DailyNutrientIntake, BalanceItem, StatItem } from "@/lib/utils/Types";
+import { Flame, Beef, Wheat, Droplet, Bone, Hammer, Leaf, Zap, Eye, Brain, Citrus, Sun, Shield } from "lucide-react";
 import { LucideIcon } from "lucide-react";
+import { NutritionTotals } from "../utils/Types";
 
 export const EMPTY_TOTALS: NutritionTotals = {
   calories: 0, protein: 0, carbs: 0, fat: 0,

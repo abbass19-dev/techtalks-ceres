@@ -18,16 +18,10 @@ export async function GET(req: NextRequest) {
     }
 
     const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(safeQuery, "i");
-
-    console.log("[FOOD_SEARCH] Searching with regex:", regex);
-    console.log("[FOOD_SEARCH] Model collection:", Ingredient.collection.collectionName);
+    const regex = new RegExp(`^${safeQuery}$`, "i");
 
     const results = await Ingredient.find({
-      $or: [
-        { name: regex },
-        { aliases: regex },
-      ],
+      $or: [{ name: { $regex: regex } }, { aliases: { $regex: regex } }],
     })
       .limit(20)
       .select("name aliases category")
@@ -49,7 +43,7 @@ export async function GET(req: NextRequest) {
     console.error("[FOOD_SEARCH] Error:", error);
     return NextResponse.json(
       { suggestions: [], error: (error as Error).message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

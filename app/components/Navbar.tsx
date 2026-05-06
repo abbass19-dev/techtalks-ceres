@@ -90,11 +90,11 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-[100] hidden transition-all duration-300 lg:block">
+      <nav className="sticky top-0 z-[100] hidden w-full transition-all duration-300 lg:block">
         <div
           className={`mx-auto transition-all duration-500 ease-in-out ${
             scrolled
-              ? "mt-4 max-w-5xl rounded-full border border-gray-300/90 bg-white/0 px-8 py-4 shadow-lg backdrop-blur-md"
+              ? "mt-4 max-w-5xl rounded-full border border-gray-300/90 bg-white/60 px-8 py-4 shadow-lg backdrop-blur-md"
               : "w-full border-b border-gray-100 bg-white px-10 py-3"
           }`}
         >

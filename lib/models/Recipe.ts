@@ -8,7 +8,14 @@ export interface IRecipe {
   prepTime?: number;
   cookTime?: number;
   imageUrl?: string;
+  instructions?: {
+  step: number;
+  title: string;
+  description: string;
+}[];
   visibility: "public" | "private";
+  status: "draft" | "published";
+
   ingredients: {
     name: string;
     quantity: number;
@@ -59,12 +66,11 @@ export interface IRecipe {
       vitaminE?: number;
     };
   };
-  visibility: "public" | "private";
 }
 
 export interface IRecipeDocument extends IRecipe, Document {}
 
-const RecipeSchema = new Schema(
+export const RecipeSchema = new Schema(
   {
     userId: {
       type: String,
@@ -102,6 +108,24 @@ const RecipeSchema = new Schema(
       type: String,
       required: false,
     },
+instructions: [
+  {
+    step: {
+      type: Number,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+],
 
     
     visibility: {
@@ -110,6 +134,14 @@ const RecipeSchema = new Schema(
       default: "private",
       required: true,
       index: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "draft",
+      required: true,
+      index:true
     },
 
     ingredients: [
@@ -177,15 +209,9 @@ const RecipeSchema = new Schema(
         vitaminE: { type: Number, default: 0 },
       },
     },
-    visibility: {
-      type: String,
-      enum: ["public", "private"],
-      default: "private",
-    },
   },
   {
     timestamps: true,
-    collection: "recipes",
   },
 );
 

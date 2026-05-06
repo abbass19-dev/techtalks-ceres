@@ -6,7 +6,8 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    const recipes = await Recipe.find({ visibility: "public" })
+    const recipes = await Recipe.find({ visibility: "public", status: "published" })
+
       .sort({ createdAt: -1 })
       .lean();
 

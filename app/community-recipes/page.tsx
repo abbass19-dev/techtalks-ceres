@@ -20,25 +20,72 @@ export default function CommunityRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All Recipes");
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
 
+  // Fetch current user and their saved recipes
   useEffect(() => {
-    const saved = localStorage.getItem("favorites");
-    if (saved) setFavorites(JSON.parse(saved));
+    const initUser = async () => {
+      try {
+        const userRes = await fetch("/api/auth/me");
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          const uid = userData?.user?.id;
+          if (uid) {
+            setUserId(uid);
+            const savedRes = await fetch(`/api/saved-recipes?userId=${uid}`);
+            if (savedRes.ok) {
+              const savedData = await savedRes.json();
+              const ids = new Set<string>(
+                savedData.saved.map((s: any) => s.recipeId?._id?.toString())
+              );
+              setSavedIds(ids);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to init user", err);
+      }
+    };
+    initUser();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
+  const handleSave = async (recipeId: string) => {
+    if (!userId) {
+      alert("Please log in to save recipes!");
+      return;
+    }
+    const isSaved = savedIds.has(recipeId);
 
-  // ✅ UPDATED: fetch from backend instead of mock data
+    // Optimistically update UI
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      if (isSaved) next.delete(recipeId);
+      else next.add(recipeId);
+      return next;
+    });
+
+    if (!isSaved) {
+      await fetch("/api/saved-recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, recipeId }),
+      });
+    } else {
+      await fetch(`/api/saved-recipes/${recipeId}?userId=${userId}`, {
+        method: "DELETE",
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
         const res = await fetch("/api/community-recipes");
+
         const data = await res.json();
 
         const mappedRecipes: Recipe[] = (data.recipes || []).map(
@@ -49,7 +96,10 @@ export default function CommunityRecipesPage() {
             calories: item.totalNutrition?.calories || 0,
             protein: item.totalNutrition?.protein || 0,
             category: item.category,
-            author: "Community",
+            carbs: item.totalNutrition?.carbs || 0,
+            fat: item.totalNutrition?.fat || 0,
+            author: item.user?.name || "Community",
+            timeToCook: item.timeToCook,
           }),
         );
 
@@ -79,13 +129,7 @@ export default function CommunityRecipesPage() {
   }, [recipes, search, activeCategory]);
 
   const handleNavigate = (id: string) => {
-    router.push(`/recipes/${id}`);
-  };
-
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id],
-    );
+    router.push(`/community-recipes/${id}`);
   };
 
   return (
@@ -156,21 +200,21 @@ export default function CommunityRecipesPage() {
                   )}
 
                   <button
-                    onClick={() => toggleFavorite(recipe.id)}
+                    onClick={() => handleSave(recipe.id)}
                     className="absolute top-3 right-3 bg-white rounded-full p-2 shadow"
                   >
                     <Heart
                       className={`w-4 h-4 md:w-5 md:h-5 ${
-                        favorites.includes(recipe.id)
+                        savedIds.has(recipe.id)
                           ? "fill-red-500 text-red-500"
                           : "text-gray-400"
                       }`}
                     />
                   </button>
 
-                  {recipe.tag && (
-                    <span className="absolute bottom-3 left-3 bg-orange-100 text-orange-600 text-[10px] md:text-xs px-2 py-1 rounded-full font-medium">
-                      {recipe.tag}
+                  {recipe.category && (
+                    <span className="absolute bottom-3 left-3 bg-green-100 text-green-600 text-[10px] md:text-xs px-2 py-1 rounded-full font-medium">
+                      {recipe.category}
                     </span>
                   )}
                 </div>
@@ -195,7 +239,7 @@ export default function CommunityRecipesPage() {
                     </div>
 
                     <div className="bg-gray-100 rounded p-2">
-                      <p className="text-gray-400">Prot</p>
+                      <p className="text-gray-400">Protein</p>
                       <p className="font-semibold text-gray-800">
                         {recipe.protein}g
                       </p>
@@ -203,12 +247,16 @@ export default function CommunityRecipesPage() {
 
                     <div className="bg-gray-100 rounded p-2">
                       <p className="text-gray-400">Carb</p>
-                      <p className="font-semibold text-gray-800">--</p>
+                      <p className="font-semibold text-gray-800">
+                        {recipe.carbs}g
+                      </p>
                     </div>
 
                     <div className="bg-gray-100 rounded p-2">
                       <p className="text-gray-400">Fat</p>
-                      <p className="font-semibold text-gray-800">--</p>
+                      <p className="font-semibold text-gray-800">
+                        {recipe.fat}g
+                      </p>
                     </div>
                   </div>
 

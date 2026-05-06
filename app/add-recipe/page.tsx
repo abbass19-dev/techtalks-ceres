@@ -25,6 +25,8 @@ export default function AddRecipePage() {
     loading: false,
   });
 
+  const [isCreating, setIsCreating] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchBoxRef = useRef<HTMLDivElement | null>(null);
 
@@ -45,7 +47,8 @@ export default function AddRecipePage() {
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  const submitRecipe = async () => {
+  const submitRecipe = async (finalStatus: "draft" | "published") => {
+    setIsCreating(true);
     setStatus({ error: "", success: "", loading: true });
 
     if (
@@ -61,6 +64,7 @@ export default function AddRecipePage() {
         success: "",
         loading: false,
       });
+      setIsCreating(false);
       return;
     }
 
@@ -70,10 +74,17 @@ export default function AddRecipePage() {
       JSON.stringify({
         ...recipe,
         visibility: recipe.visibility === "public" ? "public" : "private", 
+        status: finalStatus,
         ingredients: ingredients.filter(
           (item) => item.name || item.quantity || item.unit,
         ),
-        instructions: instructions.filter((item) => item.text?.trim()),
+        instructions: instructions
+          .filter((item) => item.title?.trim() || item.description?.trim())
+          .map((item, index) => ({
+            step: index + 1,
+            title: item.title.trim(),
+            description: item.description.trim(),
+          })),
       })
     );
 
@@ -90,12 +101,13 @@ export default function AddRecipePage() {
 
     if (data.error) {
       setStatus({ error: data.error, success: "", loading: false });
+      setIsCreating(false);
       return;
     }
 
     setStatus({
       error: "",
-      success: "Recipe created successfully!",
+      success: finalStatus === "draft" ? "Draft saved successfully!" : "Recipe published successfully!",
       loading: false,
     });
 
@@ -448,21 +460,40 @@ export default function AddRecipePage() {
                         {index + 1}
                       </div>
 
-                      <textarea
-                        rows={2}
-                        placeholder="Describe this step..."
-                        className="w-full flex-1 resize-none rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
-                        value={step.text}
-                        onChange={(e) =>
-                          setInstructions(
-                            updateInstructionById(
-                              instructions,
-                              step.id,
-                              e.target.value,
-                            ),
-                          )
-                        }
-                      />
+                      <div className="flex-1 space-y-3">
+                        <input
+                          type="text"
+                          placeholder="Step title (e.g., Prep the vegetables)"
+                          className="w-full rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200 text-sm font-medium"
+                          value={step.title}
+                          onChange={(e) =>
+                            setInstructions(
+                              updateInstructionById(
+                                instructions,
+                                step.id,
+                                "title",
+                                e.target.value,
+                              ),
+                            )
+                          }
+                        />
+                        <textarea
+                          rows={2}
+                          placeholder="Describe this step in detail..."
+                          className="w-full resize-none rounded-xl bg-[#f0f4ff] px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
+                          value={step.description}
+                          onChange={(e) =>
+                            setInstructions(
+                              updateInstructionById(
+                                instructions,
+                                step.id,
+                                "description",
+                                e.target.value,
+                              ),
+                            )
+                          }
+                        />
+                      </div>
 
                       {instructions.length > 1 && (
                         <button
@@ -589,7 +620,7 @@ export default function AddRecipePage() {
               <div className="space-y-3">
                 <button
                   type="button"
-                  onClick={submitRecipe}
+                  onClick={() => submitRecipe("published")}
                   disabled={status.loading}
                   className="w-full rounded-xl bg-[#10b981] py-4 font-bold text-white shadow-lg shadow-green-100 transition-all hover:bg-[#059669] active:scale-[0.98] disabled:opacity-50"
                 >
@@ -598,6 +629,8 @@ export default function AddRecipePage() {
 
                 <button
                   type="button"
+                  onClick={() => submitRecipe("draft")}
+                  disabled={isCreating}
                   className="w-full rounded-xl bg-white py-4 font-semibold text-slate-600 transition-all hover:bg-slate-50"
                 >
                   Save as Draft

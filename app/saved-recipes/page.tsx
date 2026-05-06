@@ -3,8 +3,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CardItem from "../components/CardItem";
 import Link from "next/link";
-import { savedRecipes } from "@/lib/data/mockData";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Recipe } from "@/lib/utils/Types";
 import {
   Search,
   Sunrise,
@@ -18,6 +18,9 @@ import {
 function SavedRecipesPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const filters = [
     { id: "All", icon: Utensils },
@@ -28,25 +31,73 @@ function SavedRecipesPage() {
     { id: "dessert", icon: IceCream },
   ];
 
+  useEffect(() => {
+    const fetchSavedRecipes = async () => {
+      try {
+        const userRes = await fetch("/api/auth/me");
+
+        if (!userRes.ok) throw new Error("Not logged in");
+
+        const userData = await userRes.json();
+        const uid = userData?.user?.id;
+
+        if (!uid) throw new Error("No user ID");
+
+        setUserId(uid);
+
+        const res = await fetch(`/api/saved-recipes?userId=${uid}`);
+        const data = await res.json();
+
+        const mappedRecipes: Recipe[] = (data.saved || [])
+          .map((s: any) => {
+            const item = s.recipeId;
+            if (!item) return null;
+
+            return {
+              id: item._id,
+              title: item.name,
+              image: item.imageUrl,
+              calories: item.totalNutrition?.calories || 0,
+              protein: item.totalNutrition?.protein || 0,
+              carbs: item.totalNutrition?.carbs || 0,
+              fat: item.totalNutrition?.fat || 0,
+              category: item.category,
+              author: item.user?.name || "Community",
+              timeToCook: item.cookTime || item.timeToCook || 0,
+            };
+          })
+          .filter(Boolean) as Recipe[];
+
+        setRecipes(mappedRecipes);
+        console.log("Mapped Recipes:", mappedRecipes);
+      } catch (err) {
+        console.error("Failed to fetch saved recipes", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSavedRecipes();
+  }, []);
   const filteredRecipes = useMemo(() => {
-    return savedRecipes.filter((recipe) => {
+    return recipes.filter((recipe) => {
       const matchesSearch = recipe.title
         .toLowerCase()
         .includes(search.toLowerCase());
 
-      const matchesFilter = filter === "All" || recipe.time === filter;
+      const matchesFilter =
+        filter === "All" ||
+        recipe.category?.toLowerCase() === filter.toLowerCase();
 
       return matchesSearch && matchesFilter;
     });
-  }, [search, filter]);
+  }, [recipes, search, filter]);
 
   return (
-    
     <div className="min-h-screen flex flex-col bg-[#F5F7F6]">
-     <Navbar />
+      <Navbar />
 
       <main className="flex-1 w-full px-4 py-6 pb-32 md:pb-6">
-        
         <section className="mb-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
@@ -101,7 +152,6 @@ function SavedRecipesPage() {
             </div>
           </div>
         </section>
-
         <section>
           {filteredRecipes.length === 0 ? (
             <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-gray-500">
@@ -115,13 +165,10 @@ function SavedRecipesPage() {
             </div>
           )}
         </section>
-
       </main>
 
       <Footer />
-    </div> 
-    
-    
+    </div>
   );
 }
 

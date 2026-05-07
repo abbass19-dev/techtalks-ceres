@@ -210,3 +210,14 @@ export type StatItem = {
   progress: number;
   icon: LucideIcon;
 };
+
+export type UserProfile = {
+  imageUrl: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  age: string;
+  weight: string;
+  height: string;
+};

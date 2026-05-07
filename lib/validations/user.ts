@@ -7,6 +7,7 @@ export const updateProfileSchema = z.object({
   weight: z.number().positive("Weight must be positive").optional(),
   height: z.number().positive("Height must be positive").optional(),
   age: z.number().int().positive("Age must be positive").optional(),
+  imageUrl: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

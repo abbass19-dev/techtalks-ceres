@@ -31,7 +31,7 @@ export default function Navbar() {
   const moreLinks = links.slice(4);
 
   const displayUser = user || {
-    firstName: "h",
+    firstName: "",
     lastName: "",
     email: "",
     image: "/images/logo.png",
@@ -47,7 +47,7 @@ export default function Navbar() {
           firstName: data.user.firstName,
           lastName: data.user.lastName,
           email: data.user.email,
-          image: data.user.image || "/images/logo.png",
+          image: data.user.imageUrl || "/images/salad.jpeg",
         });
       })
       .catch(() => {});
@@ -103,9 +103,10 @@ export default function Navbar() {
               <Image
                 src="/images/logo.png"
                 alt="CERES logo"
-                width={scrolled ? 60 : 85}
-                height={scrolled ? 40 : 60}
-                className="rounded-full object-cover transition-all"
+                width={110}
+                height={110}
+                className={`rounded-full object-cover transition-all duration-300
+                ${scrolled ? "h-10 w-10" : "h-14 w-14"}`}
               />
 
               <span
@@ -153,11 +154,11 @@ export default function Navbar() {
                 <Image
                   src={displayUser.image}
                   alt={displayUser.firstName || "User"}
-                  width={scrolled ? 45 : 40}
-                  height={scrolled ? 45 : 40}
-                  className="rounded-full object-cover"
+                  width={10}
+                  height={10}
+                  className={`rounded-full object-cover transition-all duration-300
+  ${scrolled ? "h-8 w-8" : "h-8 w-8"}`}
                 />
-
                 {!scrolled && (
                   <>
                     <span className="text-sm font-medium text-slate-700">

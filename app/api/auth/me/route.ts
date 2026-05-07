@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       user: {
         id: user._id.toString(),
+        imageUrl: user.imageUrl || "",
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -35,4 +36,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-

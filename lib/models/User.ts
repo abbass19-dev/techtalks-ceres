@@ -40,6 +40,10 @@ const userSchema = new Schema(
       type: Number,
       required: false,
     },
+    imageUrl: {
+      type: String,
+      default: "",
+    },
     resetPasswordToken: {
       type: String,
       required: false,

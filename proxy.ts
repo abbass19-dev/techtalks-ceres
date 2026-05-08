@@ -51,7 +51,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isValidToken && isPublicPath) {
-    return NextResponse.redirect(new URL("/home", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   if (!isValidToken && !isPublicPath && !isAsset && !isApi) {

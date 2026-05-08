@@ -24,3 +24,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@utility field-input {
+  @apply w-full rounded-xl border border-slate-200 bg-[#F8FAF9] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006C49] focus:bg-white;
+}

@@ -1,7 +1,5 @@
 "use client";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import CardItem from "../components/CardItem";
+import CardItem from "../../components/CardItem";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { Recipe } from "@/lib/utils/Types";
@@ -13,14 +11,33 @@ import {
   Coffee,
   Cookie,
   IceCream,
+  Loader,
 } from "lucide-react";
+
+type SavedRecipeItem = {
+  recipeId?: {
+    _id: string;
+    name: string;
+    imageUrl?: string;
+    category?: string;
+    prepTime?: number;
+    cookTime?: number;
+    timeToCook?: number;
+    user?: { name?: string };
+    nutritionPerServing?: {
+      calories?: number;
+      protein?: number;
+      carbs?: number;
+      fat?: number;
+    };
+  };
+};
 
 function SavedRecipesPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const filters = [
     { id: "All", icon: Utensils },
@@ -34,22 +51,13 @@ function SavedRecipesPage() {
   useEffect(() => {
     const fetchSavedRecipes = async () => {
       try {
-        const userRes = await fetch("/api/auth/me");
+        const res = await fetch("/api/saved-recipes");
+        if (!res.ok) throw new Error("Failed to fetch saved recipes");
 
-        if (!userRes.ok) throw new Error("Not logged in");
-
-        const userData = await userRes.json();
-        const uid = userData?.user?.id;
-
-        if (!uid) throw new Error("No user ID");
-
-        setUserId(uid);
-
-        const res = await fetch(`/api/saved-recipes?userId=${uid}`);
         const data = await res.json();
 
-        const mappedRecipes: Recipe[] = (data.saved || [])
-          .map((s: any) => {
+        const mappedRecipes: Recipe[] = ((data.saved || []) as SavedRecipeItem[])
+          .map((s) => {
             const item = s.recipeId;
             if (!item) return null;
 
@@ -57,19 +65,21 @@ function SavedRecipesPage() {
               id: item._id,
               title: item.name,
               image: item.imageUrl,
-              calories: item.totalNutrition?.calories || 0,
-              protein: item.totalNutrition?.protein || 0,
-              carbs: item.totalNutrition?.carbs || 0,
-              fat: item.totalNutrition?.fat || 0,
+              calories: item.nutritionPerServing?.calories || 0,
+              protein: item.nutritionPerServing?.protein || 0,
+              carbs: item.nutritionPerServing?.carbs || 0,
+              fat: item.nutritionPerServing?.fat || 0,
               category: item.category,
               author: item.user?.name || "Community",
-              timeToCook: item.cookTime || item.timeToCook || 0,
+              timeToCook:
+                (item.prepTime || 0) + (item.cookTime || 0) ||
+                item.timeToCook ||
+                0,
             };
           })
           .filter(Boolean) as Recipe[];
 
         setRecipes(mappedRecipes);
-        console.log("Mapped Recipes:", mappedRecipes);
       } catch (err) {
         console.error("Failed to fetch saved recipes", err);
       } finally {
@@ -95,8 +105,6 @@ function SavedRecipesPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F7F6]">
-      <Navbar />
-
       <main className="flex-1 w-full px-4 py-6 pb-32 md:pb-6">
         <section className="mb-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
@@ -153,21 +161,24 @@ function SavedRecipesPage() {
           </div>
         </section>
         <section>
-          {filteredRecipes.length === 0 ? (
+          {loading ? (
+            <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-gray-500">
+              <Loader className="mr-3 h-5 w-5 animate-spin text-[#006C49] transition-all duration-300 ease-linear" />
+              LOADING...
+            </div>
+          ) : filteredRecipes.length === 0 ? (
             <div className="flex min-h-[300px] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-gray-500">
               No recipes found.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredRecipes.map((recipe: any) => (
+              {filteredRecipes.map((recipe) => (
                 <CardItem key={recipe.id} recipe={recipe} />
               ))}
             </div>
           )}
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

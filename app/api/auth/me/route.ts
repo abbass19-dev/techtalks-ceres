@@ -24,9 +24,11 @@ export async function GET(req: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         phoneNumber: user.phoneNumber,
+        gender: user.gender,
         weight: user.weight,
         height: user.height,
         age: user.age,
+        activityLevel: user.activityLevel,
       },
     });
   } catch (error: unknown) {

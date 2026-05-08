@@ -1,8 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import {Utensils,Clock,BookOpen,ListOrdered,ImagePlus,Plus,X,ChevronDown,} from "lucide-react";
 import {CATEGORIES, UNITS, createIngredient, createInstruction, initialRecipe, updateIngredientById, removeIngredientById, updateInstructionById, removeInstructionById,} from "@/lib/constants/recipeForm";
 import { RecipeForm, Ingredient, Instruction } from "@/lib/utils/Types";
@@ -68,6 +67,24 @@ export default function AddRecipePage() {
       return;
     }
 
+    const cleanIngredients = ingredients.filter(
+      (item) => item.name || item.quantity || item.unit,
+    );
+
+    const unselectedIngredient = cleanIngredients.find(
+      (item) => item.selectedName !== item.name,
+    );
+
+    if (unselectedIngredient) {
+      setStatus({
+        error: `Please select ${unselectedIngredient.name || "each ingredient"} from the ingredient search results`,
+        success: "",
+        loading: false,
+      });
+      setIsCreating(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append(
       "data",
@@ -75,9 +92,11 @@ export default function AddRecipePage() {
         ...recipe,
         visibility: recipe.visibility === "public" ? "public" : "private", 
         status: finalStatus,
-        ingredients: ingredients.filter(
-          (item) => item.name || item.quantity || item.unit,
-        ),
+        ingredients: cleanIngredients.map(({ name, quantity, unit }) => ({
+          name,
+          quantity,
+          unit,
+        })),
         instructions: instructions
           .filter((item) => item.title?.trim() || item.description?.trim())
           .map((item, index) => ({
@@ -120,7 +139,6 @@ export default function AddRecipePage() {
 
   return (
     <main className="bg-white">
-      <Navbar />
 
       <div className="min-h-screen bg-white p-6 font-sans text-slate-900 lg:p-12">
         <div className="mx-auto max-w-6xl">
@@ -295,7 +313,11 @@ export default function AddRecipePage() {
                           onChange={(e) => {
                             setIngredients(
                               updateIngredientById(
-                                ingredients,
+                                ingredients.map((item) =>
+                                  item.id === ingredient.id
+                                    ? { ...item, selectedName: "" }
+                                    : item,
+                                ),
                                 ingredient.id,
                                 "name",
                                 e.target.value,
@@ -337,7 +359,14 @@ export default function AddRecipePage() {
                                       e.preventDefault();
                                       setIngredients(
                                         updateIngredientById(
-                                          ingredients,
+                                          ingredients.map((current) =>
+                                            current.id === ingredient.id
+                                              ? {
+                                                  ...current,
+                                                  selectedName: item.name,
+                                                }
+                                              : current,
+                                          ),
                                           ingredient.id,
                                           "name",
                                           item.name,
@@ -573,9 +602,12 @@ export default function AddRecipePage() {
 
                 {imagePreview ? (
                   <div className="relative w-full overflow-hidden rounded-xl shadow-sm">
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="Preview"
+                      width={320}
+                      height={320}
+                      unoptimized
                       className="h-full w-full object-cover"
                     />
                     <button
@@ -640,8 +672,6 @@ export default function AddRecipePage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 }

@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Image from "next/image";
 import { Plus, Lightbulb, Trash2, AlertTriangle, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -11,6 +10,7 @@ import { dayName } from "@/lib/utils/plannerUtils";
 import { getNutrientColor } from "@/lib/utils/nutrientCalculator";
 import { EMPTY_TOTALS, STAT_STYLES, DEFAULT_GOALS, buildBalance, buildStats, getDailyRandomTip } from "@/lib/constants/dashboard";
 import type { NutritionTotals, BalanceItem, StatItem } from "@/lib/utils/Types";
+
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -80,8 +80,6 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-[#F5F7F6] min-h-screen flex flex-col">
-      <Navbar />
-
       <main className="pt-6 px-4 md:px-6 lg:px-10 flex-1 space-y-6 w-full mx-auto pb-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="space-y-1">
@@ -302,10 +300,15 @@ export default function DashboardPage() {
                       className="flex items-center justify-between py-3 border-b last:border-none"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={meal.image || "/images/logo.png"}
+                        <Image
+                          width={40}
+                          height={40}
+                          src={meal.imageUrl || "/images/logo.png"}
                           alt={meal.name}
-                          className="w-10 h-10 rounded-lg object-cover"
+                          className="rounded-lg object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          quality={75}
+                          loading={"lazy"}
                         />
                         <div>
                           <p className="text-sm font-medium text-gray-800">
@@ -354,8 +357,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

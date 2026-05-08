@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IRecipe {
+  userId: string;
   name: string;
   description: string;
   category: string;
@@ -46,6 +47,28 @@ export interface IRecipe {
   }[];
 
   totalNutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+
+    minerals?: {
+      calcium?: number;
+      iron?: number;
+      potassium?: number;
+      magnesium?: number;
+    };
+
+    vitamins?: {
+      vitaminA?: number;
+      vitaminB?: number;
+      vitaminC?: number;
+      vitaminD?: number;
+      vitaminE?: number;
+    };
+  };
+
+  nutritionPerServing: {
     calories: number;
     protein: number;
     carbs: number;
@@ -214,7 +237,8 @@ instructions: [
     timestamps: true,
   },
 );
-
+RecipeSchema.index({ userId: 1, createdAt: -1 });
+RecipeSchema.index({ visibility: 1, status: 1, createdAt: -1 });
 const Recipe =
   mongoose.models.Recipe ||
   mongoose.model<IRecipeDocument>("Recipe", RecipeSchema, "recipes");

@@ -1,38 +1,38 @@
+import Image from "next/image";
+
 type Props = {
-  recipe: any;
+  recipe: {
+    image?: string;
+    name: string;
+    calories: number;
+    protein?: number;
+  };
 };
 
 export default function RecipeCard({ recipe }: Props) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition">
-      
-      {/* Image */}
-      {recipe.image && (
-        <img
-          src={recipe.image}
+    <div className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-md">
+      <div className="relative h-40 w-full">
+        <Image
+          src={recipe.image || "/images/recipe-placeholder.jpg"}
           alt={recipe.name}
-          className="w-full h-40 object-cover"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover"
         />
-      )}
+      </div>
 
-      {/* Content */}
       <div className="p-4">
-        <h2 className="font-semibold text-gray-800 mb-1">
-          {recipe.name}
-        </h2>
+        <h2 className="mb-1 font-semibold text-gray-800">{recipe.name}</h2>
 
-        <p className="text-sm text-gray-500 mb-3">
-          Healthy and delicious meal
-        </p>
+        <p className="mb-3 text-sm text-gray-500">Healthy and delicious meal</p>
 
-        {/* Stats */}
-        <div className="flex justify-between text-sm text-gray-600 mb-4">
+        <div className="mb-4 flex justify-between text-sm text-gray-600">
           <span>{recipe.calories} kcal</span>
           <span>{recipe.protein || 20}g protein</span>
         </div>
 
-        {/* Button */}
-        <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
+        <button className="w-full rounded-lg bg-green-600 py-2 text-white transition hover:bg-green-700">
           View Details
         </button>
       </div>

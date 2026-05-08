@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { connectToDatabase } from "@/lib/db";
 import UserGoal from "@/lib/models/UserGoal";
+import { userRepository } from "@/lib/repositories/user.repository";
+import { getRecommendedGoals } from "@/lib/utils/goalRecommendations";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
@@ -24,9 +26,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const goals = await UserGoal.findOne({ userId });
+    const [goals, user] = await Promise.all([
+      UserGoal.findOne({ userId }),
+      userRepository.findById(userId),
+    ]);
+    const recommendations = getRecommendedGoals({
+      gender: user?.gender,
+      age: user?.age,
+      height: user?.height,
+      weight: user?.weight,
+      activityLevel: user?.activityLevel,
+    });
 
-    return NextResponse.json({ goals });
+    return NextResponse.json({ goals, recommendations });
   } catch (error) {
     console.error("Goals GET error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
@@ -44,15 +56,30 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const dailyCalories = Number(body.dailyCalories);
+    const dailyProtein = Number(body.dailyProtein);
+    const dailyCarbs = Number(body.dailyCarbs);
+    const dailyFat = Number(body.dailyFat);
+
+    if (
+      [dailyCalories, dailyProtein, dailyCarbs, dailyFat].some(
+        (value) => !Number.isFinite(value) || value < 0,
+      )
+    ) {
+      return NextResponse.json(
+        { error: "Goals must be valid non-negative numbers" },
+        { status: 400 },
+      );
+    }
 
     const goals = await UserGoal.findOneAndUpdate(
       { userId },
       {
         userId,
-        dailyCalories: body.dailyCalories,
-        dailyProtein: body.dailyProtein,
-        dailyCarbs: body.dailyCarbs,
-        dailyFat: body.dailyFat,
+        dailyCalories,
+        dailyProtein,
+        dailyCarbs,
+        dailyFat,
       },
       {
         new: true,

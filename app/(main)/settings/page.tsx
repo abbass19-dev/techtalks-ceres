@@ -3,8 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { UserProfile } from "@/lib/utils/Types";
-import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
 
 const EMPTY: UserProfile = {
   //add default image for user:
@@ -13,6 +11,8 @@ const EMPTY: UserProfile = {
   lastName: "",
   email: "",
   phoneNumber: "",
+  gender: "",
+  activityLevel: "",
   age: "",
   weight: "",
   height: "",
@@ -24,6 +24,12 @@ const VALIDATORS: Partial<
   email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? null : "Invalid email"),
   phoneNumber: (v) =>
     !v || /^\+?[\d\s\-()]{8}$/.test(v) ? null : "Invalid phone",
+  gender: (v) =>
+    !v || ["male", "female", "other"].includes(v) ? null : "Invalid gender",
+  activityLevel: (v) =>
+    !v || ["sedentary", "light", "moderate", "active"].includes(v)
+      ? null
+      : "Invalid activity level",
   age: (v) =>
     !v || (Number(v) >= 1 && Number(v) <= 100) ? null : "Age must be 1–100",
   weight: (v) =>
@@ -70,6 +76,8 @@ export default function SettingsPage() {
           lastName: u?.lastName ?? "",
           email: u?.email ?? "",
           phoneNumber: u?.phoneNumber ?? "",
+          gender: u?.gender ?? "",
+          activityLevel: u?.activityLevel ?? "",
           age: String(u?.age ?? ""),
           weight: String(u?.weight ?? ""),
           height: String(u?.height ?? ""),
@@ -155,6 +163,8 @@ export default function SettingsPage() {
         lastName: u?.lastName ?? draft.lastName,
         email: u?.email ?? draft.email,
         phoneNumber: u?.phoneNumber ?? draft.phoneNumber,
+        gender: u?.gender ?? draft.gender,
+        activityLevel: u?.activityLevel ?? draft.activityLevel,
         age: String(u?.age ?? draft.age),
         weight: String(u?.weight ?? draft.weight),
         height: String(u?.height ?? draft.height),
@@ -188,7 +198,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
-      <Navbar />
       <main className="min-h-screen bg-[#f4f6fb] px-4 py-8">
         {toast && (
           <div
@@ -296,6 +305,55 @@ export default function SettingsPage() {
               ))}
             </div>
 
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Gender
+                </label>
+                <select
+                  value={edit ? draft.gender : user.gender}
+                  disabled={!edit}
+                  onChange={(e) => handleChange("gender", e.target.value)}
+                  className={`w-full rounded-xl px-4 py-3 text-sm text-gray-800 outline-none transition
+                    ${edit ? "bg-[#eef4ff] ring-1 ring-emerald-200 focus:ring-emerald-500" : "bg-[#f4f6fb] cursor-default"}
+                    ${errors.gender ? "ring-1 ring-red-400" : ""}`}
+                >
+                  <option value="">Not set</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                {errors.gender && (
+                  <p className="mt-1 text-xs text-red-500">{errors.gender}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Activity Level
+                </label>
+                <select
+                  value={edit ? draft.activityLevel : user.activityLevel}
+                  disabled={!edit}
+                  onChange={(e) => handleChange("activityLevel", e.target.value)}
+                  className={`w-full rounded-xl px-4 py-3 text-sm text-gray-800 outline-none transition
+                    ${edit ? "bg-[#eef4ff] ring-1 ring-emerald-200 focus:ring-emerald-500" : "bg-[#f4f6fb] cursor-default"}
+                    ${errors.activityLevel ? "ring-1 ring-red-400" : ""}`}
+                >
+                  <option value="">Not set</option>
+                  <option value="sedentary">Sedentary</option>
+                  <option value="light">Light</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="active">Active</option>
+                </select>
+                {errors.activityLevel && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.activityLevel}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {metricFields.map(([key, label, unit]) => (
                 <div
@@ -322,7 +380,6 @@ export default function SettingsPage() {
           </section>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

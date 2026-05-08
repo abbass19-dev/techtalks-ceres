@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, message: "Password updated successfully." });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("RESET_PASSWORD_ERROR:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

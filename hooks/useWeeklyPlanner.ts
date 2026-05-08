@@ -3,6 +3,25 @@ import { DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from 
 import { ScheduleState, CardItem } from "@/lib/utils/Types";
 import { getCurrentWeek, filterCards, getUnscheduledCards, moveCard, removeCard } from "@/lib/utils/plannerUtils";
 
+type PlannerRecipe = {
+  _id: string;
+  name: string;
+  category: string;
+  prepTime?: number;
+  cookTime?: number;
+  imageUrl?: string;
+  image?: string;
+  servings?: number;
+  nutritionPerServing?: {
+    calories?: number;
+    protein?: number;
+  };
+  totalNutrition?: {
+    calories?: number;
+    protein?: number;
+  };
+};
+
 export function useWeeklyPlanner() {
   const [isMounted, setIsMounted] = useState(false);
   const [schedule, setSchedule] = useState<ScheduleState>({});
@@ -23,46 +42,56 @@ export function useWeeklyPlanner() {
     }),
   );
 
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      try {
-        const recipesRes = await fetch("/api/recipes?userOnly=true");
-        const recipesData = await recipesRes.json();
+useEffect(() => {
+  async function fetchData() {
+    setIsLoading(true);
 
-        if (recipesData.recipes) {
-          const mappedRecipes: CardItem[] = recipesData.recipes.map(
-            (r: any) => ({
-              id: r._id,
-              title: r.name,
-              category: r.category,
-              calories: r.nutritionPerServing?.calories ? Math.round(r.nutritionPerServing.calories) : Math.round((r.totalNutrition?.calories || 0) / (r.servings || 1)),
-              protein: r.nutritionPerServing?.protein ? Math.round(r.nutritionPerServing.protein) : Math.round((r.totalNutrition?.protein || 0) / (r.servings || 1)),
-              time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
-              minutes: (r.prepTime || 0) + (r.cookTime || 0),
-              image: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
-            }),
-          );
-          setRecipes(mappedRecipes);
-        }
+    try {
+      const [plannerRes, recipesRes] = await Promise.all([
+        fetch("/api/planner"),
+        fetch("/api/recipes/user"),
+      ]);
 
-        const plannerRes = await fetch("/api/planner");
+      if (plannerRes.ok) {
         const plannerData = await plannerRes.json();
-        if (plannerData.schedule) {
-          setSchedule(plannerData.schedule);
-        }
-      } catch (error) {
-        console.error("Failed to fetch planner data:", error);
-      } finally {
-        setIsLoading(false);
-        setIsMounted(true);
-        initialLoadRef.current = true;
+        setSchedule(plannerData.schedule || {});
       }
+
+      if (!recipesRes.ok) throw new Error("Failed to fetch user recipes");
+
+      const recipesData = await recipesRes.json();
+
+      if (recipesData.recipes) {
+        const mappedRecipes: CardItem[] = (recipesData.recipes as PlannerRecipe[]).map((r) => ({
+          id: r._id,
+          title: r.name,
+          category: r.category,
+          calories: r.nutritionPerServing?.calories
+            ? Math.round(r.nutritionPerServing.calories)
+            : Math.round((r.totalNutrition?.calories || 0) / (r.servings || 1)),
+          protein: r.nutritionPerServing?.protein
+            ? Math.round(r.nutritionPerServing.protein)
+            : Math.round((r.totalNutrition?.protein || 0) / (r.servings || 1)),
+          time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
+          minutes: (r.prepTime || 0) + (r.cookTime || 0),
+          image: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
+        }));
+
+        setRecipes(mappedRecipes);
+      }
+
+      
+    } catch (error) {
+      console.error("Failed to fetch planner data:", error);
+    } finally {
+      setIsLoading(false);
+      setIsMounted(true);
+      initialLoadRef.current = true;
     }
+  }
 
-    fetchData();
-  }, []);
-
+  fetchData();
+}, []);
   // Auto-save to backend
   useEffect(() => {
     if (!initialLoadRef.current) return;

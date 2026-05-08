@@ -5,7 +5,7 @@ import WeeklyPlanner from "@/lib/models/WeeklyPlanner";
 import Recipe from "@/lib/models/Recipe";
 import { Types } from "mongoose";
 import { calculateNutrientPercentages } from "@/lib/utils/nutrientCalculator";
-import { UserNutrientTotals } from "@/lib/utils/Types";
+import { NutritionTotals, UserNutrientTotals } from "@/lib/utils/Types";
 const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
@@ -39,66 +39,69 @@ export async function GET(req: NextRequest) {
 
     const recipes = await Recipe.find({
       _id: { $in: recipeIds },
+      $or: [
+        { userId },
+        { visibility: "public", status: "published" },
+      ],
     }).lean();
+
+    type PlannerRecipe = {
+      _id: { toString(): string };
+      servings?: number;
+      nutritionPerServing?: NutritionTotals;
+      totalNutrition?: NutritionTotals;
+    };
+
+    const perServing = (recipe: PlannerRecipe, key: keyof NutritionTotals) => {
+      const direct = recipe.nutritionPerServing?.[key];
+      if (typeof direct === "number") return direct;
+      const total = recipe.totalNutrition?.[key];
+      return typeof total === "number" ? total / (recipe.servings || 1) : 0;
+    };
+
+    const nestedPerServing = (
+      recipe: PlannerRecipe,
+      group: "minerals" | "vitamins",
+      key: string,
+    ) => {
+      const direct = recipe.nutritionPerServing?.[group]?.[
+        key as keyof NonNullable<NutritionTotals[typeof group]>
+      ];
+      if (typeof direct === "number") return direct;
+      const total = recipe.totalNutrition?.[group]?.[
+        key as keyof NonNullable<NutritionTotals[typeof group]>
+      ];
+      return typeof total === "number" ? total / (recipe.servings || 1) : 0;
+    };
 
     const totals = recipeIds.reduce(
       (acc, id) => {
-        const recipe: any = recipes.find(
+        const recipe = (recipes as PlannerRecipe[]).find(
           (r) => r._id.toString() === id.toString(),
         );
         if (!recipe) return acc;
 
-        acc.calories +=
-          recipe.nutritionPerServing?.calories ||
-          (recipe.totalNutrition?.calories || 0) / (recipe.servings || 1);
-        acc.protein +=
-          recipe.nutritionPerServing?.protein ||
-          (recipe.totalNutrition?.protein || 0) / (recipe.servings || 1);
-        acc.carbs +=
-          recipe.nutritionPerServing?.carbs ||
-          (recipe.totalNutrition?.carbs || 0) / (recipe.servings || 1);
-        acc.fat +=
-          recipe.nutritionPerServing?.fat ||
-          (recipe.totalNutrition?.fat || 0) / (recipe.servings || 1);
-
-        // Add minerals
-        acc.minerals.calcium +=
-          recipe.nutritionPerServing?.minerals?.calcium ||
-          (recipe.totalNutrition?.minerals?.calcium || 0) /
-            (recipe.servings || 1);
-        acc.minerals.iron +=
-          recipe.nutritionPerServing?.minerals?.iron ||
-          (recipe.totalNutrition?.minerals?.iron || 0) / (recipe.servings || 1);
-        acc.minerals.potassium +=
-          recipe.nutritionPerServing?.minerals?.potassium ||
-          (recipe.totalNutrition?.minerals?.potassium || 0) /
-            (recipe.servings || 1);
-        acc.minerals.magnesium +=
-          recipe.nutritionPerServing?.minerals?.magnesium ||
-          (recipe.totalNutrition?.minerals?.magnesium || 0) /
-            (recipe.servings || 1);
-
-        // Add vitamins
-        acc.vitamins.vitaminA +=
-          recipe.nutritionPerServing?.vitamins?.vitaminA ||
-          (recipe.totalNutrition?.vitamins?.vitaminA || 0) /
-            (recipe.servings || 1);
-        acc.vitamins.vitaminB +=
-          recipe.nutritionPerServing?.vitamins?.vitaminB ||
-          (recipe.totalNutrition?.vitamins?.vitaminB || 0) /
-            (recipe.servings || 1);
-        acc.vitamins.vitaminC +=
-          recipe.nutritionPerServing?.vitamins?.vitaminC ||
-          (recipe.totalNutrition?.vitamins?.vitaminC || 0) /
-            (recipe.servings || 1);
-        acc.vitamins.vitaminD +=
-          recipe.nutritionPerServing?.vitamins?.vitaminD ||
-          (recipe.totalNutrition?.vitamins?.vitaminD || 0) /
-            (recipe.servings || 1);
-        acc.vitamins.vitaminE +=
-          recipe.nutritionPerServing?.vitamins?.vitaminE ||
-          (recipe.totalNutrition?.vitamins?.vitaminE || 0) /
-            (recipe.servings || 1);
+        acc.calories += perServing(recipe, "calories");
+        acc.protein += perServing(recipe, "protein");
+        acc.carbs += perServing(recipe, "carbs");
+        acc.fat += perServing(recipe, "fat");
+        acc.minerals.calcium += nestedPerServing(recipe, "minerals", "calcium");
+        acc.minerals.iron += nestedPerServing(recipe, "minerals", "iron");
+        acc.minerals.potassium += nestedPerServing(
+          recipe,
+          "minerals",
+          "potassium",
+        );
+        acc.minerals.magnesium += nestedPerServing(
+          recipe,
+          "minerals",
+          "magnesium",
+        );
+        acc.vitamins.vitaminA += nestedPerServing(recipe, "vitamins", "vitaminA");
+        acc.vitamins.vitaminB += nestedPerServing(recipe, "vitamins", "vitaminB");
+        acc.vitamins.vitaminC += nestedPerServing(recipe, "vitamins", "vitaminC");
+        acc.vitamins.vitaminD += nestedPerServing(recipe, "vitamins", "vitaminD");
+        acc.vitamins.vitaminE += nestedPerServing(recipe, "vitamins", "vitaminE");
 
         return acc;
       },

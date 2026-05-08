@@ -45,7 +45,7 @@ const handleMultipartForm = async <T>(req: NextRequest): Promise<T> => {
 
     try {
       const imageUrl = await uploadImageToCloudinary(buffer);
-      (body as any).imageUrl = imageUrl;
+      (body as T & { imageUrl?: string }).imageUrl = imageUrl;
     } catch {
       throw new RequestParseError("Failed to upload image to cloud storage", 500);
     }

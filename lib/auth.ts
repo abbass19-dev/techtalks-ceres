@@ -14,7 +14,7 @@ export async function verifyAuth(req: NextRequest): Promise<string | null> {
 
     const { payload } = await jwtVerify(token, encodedSecret);
     return (payload.userId as string) || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

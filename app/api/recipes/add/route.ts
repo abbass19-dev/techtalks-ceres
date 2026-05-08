@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (error) {
-      return NextResponse.json({ error }, { status: 500 });
+      return NextResponse.json({ error }, { status: 400 });
     }
 
     return NextResponse.json({ recipe }, { status: 201 });

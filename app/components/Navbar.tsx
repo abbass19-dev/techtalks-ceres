@@ -74,10 +74,6 @@ export default function Navbar() {
     return () => window.removeEventListener("mousedown", closeProfile);
   }, []);
 
-  useEffect(() => {
-    setMoreOpen(false);
-  }, [pathname]);
-
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setProfileOpen(false);

@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { calculateCalories } from "@/lib/utils/calculatorUtils";
 import { CalculatorResults } from "@/lib/utils/Types";
 import { Activity, Flame, Target, Info } from "lucide-react";
@@ -127,8 +125,6 @@ export default function CalorieCalculatorPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F8F9FF]">
-      <Navbar />
-
       <div className="flex flex-1 justify-center px-4 py-4">
         <div className="w-full max-w-[1400px]">
           <div className="text-center">
@@ -556,8 +552,6 @@ export default function CalorieCalculatorPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

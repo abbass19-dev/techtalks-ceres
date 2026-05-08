@@ -14,11 +14,13 @@ const IngredientSchema = new mongoose.Schema(
       sugar: Number,
       calcium: Number,
       iron: Number,
+      potassium: Number,
       magnesium: Number,
       vitaminA: Number,
       vitaminB: Number,
       vitaminC: Number,
       vitaminD: Number,
+      vitaminE: Number,
     },
   },
   { collection: "ingredients" }

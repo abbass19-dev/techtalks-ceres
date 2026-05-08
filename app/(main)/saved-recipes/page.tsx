@@ -51,16 +51,9 @@ function SavedRecipesPage() {
   useEffect(() => {
     const fetchSavedRecipes = async () => {
       try {
-        const userRes = await fetch("/api/auth/me");
-
-        if (!userRes.ok) throw new Error("Not logged in");
-
-        const userData = await userRes.json();
-        const uid = userData?.user?.id;
-
-        if (!uid) throw new Error("No user ID");
-
         const res = await fetch("/api/saved-recipes");
+        if (!res.ok) throw new Error("Failed to fetch saved recipes");
+
         const data = await res.json();
 
         const mappedRecipes: Recipe[] = ((data.saved || []) as SavedRecipeItem[])
@@ -87,7 +80,6 @@ function SavedRecipesPage() {
           .filter(Boolean) as Recipe[];
 
         setRecipes(mappedRecipes);
-        console.log("Mapped Recipes:", mappedRecipes);
       } catch (err) {
         console.error("Failed to fetch saved recipes", err);
       } finally {

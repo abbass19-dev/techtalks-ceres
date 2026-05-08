@@ -57,16 +57,10 @@ function MyRecipesPage() {
   useEffect(() => {
     const fetchMyRecipes = async () => {
       try {
-        const userRes = await fetch("/api/auth/me");
-        if (!userRes.ok) throw new Error("Not logged in");
+        const res = await fetch("/api/recipes/user");
+        if (!res.ok) throw new Error("Failed to fetch user recipes");
 
-        const userData = await userRes.json();
-        const uid = userData?.user?.id;
-        if (!uid) throw new Error("No user ID");
-
-        const [data] = await Promise.all([
-          fetch("/api/recipes/user").then((r) => r.json()),
-        ]);
+        const data = await res.json();
 
         const mappedRecipes: Recipe[] = ((data.recipes || []) as RecipeListItem[])
           .map((item) => {
@@ -80,7 +74,7 @@ function MyRecipesPage() {
               carbs: item.nutritionPerServing?.carbs || 0,
               fat: item.nutritionPerServing?.fat || 0,
               category: item.category,
-              author: userData?.user?.name || "You",
+              author: "You",
               visibility: item.visibility,
               status: item.status,
               timeToCook: (item.prepTime || 0) + (item.cookTime || 0),

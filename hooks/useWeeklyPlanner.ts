@@ -47,24 +47,15 @@ useEffect(() => {
     setIsLoading(true);
 
     try {
-      const [userRes, plannerRes] = await Promise.all([
-        fetch("/api/auth/me"),
-        fetch("/api/planner")
+      const [plannerRes, recipesRes] = await Promise.all([
+        fetch("/api/planner"),
+        fetch("/api/recipes/user"),
       ]);
-
-      if (!userRes.ok) throw new Error("Not logged in");
-
-      const userData = await userRes.json();
-      const uid = userData?.user?.id;
-
-      if (!uid) throw new Error("No user ID");
 
       if (plannerRes.ok) {
         const plannerData = await plannerRes.json();
         setSchedule(plannerData.schedule || {});
       }
-
-      const recipesRes = await fetch("/api/recipes/user");
 
       if (!recipesRes.ok) throw new Error("Failed to fetch user recipes");
 

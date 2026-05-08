@@ -21,6 +21,7 @@ import {
   ChefHat,
   Loader2,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { DashboardMeal } from "@/lib/utils/Types";
 
@@ -33,7 +34,6 @@ export default function RecipeDetailsPage() {
   const [recipe, setRecipe] = useState<DashboardMeal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [favorited, setFavorited] = useState(false);
   const [checked, setChecked] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
@@ -50,8 +50,8 @@ export default function RecipeDetailsPage() {
         if (!res.ok) throw new Error(data.error || "Failed to fetch recipe");
 
         setRecipe(data.recipe);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch recipe");
       } finally {
         setLoading(false);
       }
@@ -74,11 +74,12 @@ export default function RecipeDetailsPage() {
 
         setUserId(uid);
 
-        const savedRes = await fetch(`/api/saved-recipes?userId=${uid}`);
+        const savedRes = await fetch("/api/saved-recipes");
         const savedData = await savedRes.json();
 
-        const saved = savedData.saved?.some(
-          (s: any) => s.recipeId?._id?.toString() === id,
+        const saved = (savedData.saved || []).some(
+          (s: { recipeId?: { _id?: string } }) =>
+            s.recipeId?._id?.toString() === id,
         );
 
         setIsSaved(saved);
@@ -99,7 +100,7 @@ export default function RecipeDetailsPage() {
       setSaving(true);
 
       if (isSaved) {
-        await fetch(`/api/saved-recipes/${id}?userId=${userId}`, {
+        await fetch(`/api/saved-recipes/${id}`, {
           method: "DELETE",
         });
 
@@ -109,7 +110,6 @@ export default function RecipeDetailsPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId,
             recipeId: id,
           }),
         });
@@ -167,6 +167,12 @@ export default function RecipeDetailsPage() {
   ];
 
   const totalTime = (recipe.prepTime ?? 0) + (recipe.cookTime ?? 0);
+  const quickStats: [LucideIcon, string, string | number | undefined][] = [
+    [Clock, "Prep Time", `${recipe.prepTime ?? 0} min`],
+    [Timer, "Cook Time", `${recipe.cookTime ?? 0} min`],
+    [Users, "Servings", recipe.servings],
+    [Tag, "Category", recipe.category],
+  ];
 
   return (
     <>
@@ -204,23 +210,19 @@ export default function RecipeDetailsPage() {
 
             <button
               onClick={handleSaveToggle}
+              disabled={saving}
               className={`hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg transition-all ${
                 isSaved ? "bg-rose-500 text-white" : "bg-white/90 text-gray-700"
               }`}
             >
               <Heart size={14} fill={isSaved ? "currentColor" : "none"} />
-              {isSaved ? "Saved" : "Save"}
+              {saving ? "Saving..." : isSaved ? "Saved" : "Save"}
             </button>
           </div>
         </section>
         <section className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
           <div className="w-full px-4 md:px-8 py-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              [Clock, "Prep Time", `${recipe.prepTime ?? 0} min`],
-              [Timer, "Cook Time", `${recipe.cookTime ?? 0} min`],
-              [Users, "Servings", recipe.servings],
-              [Tag, "Category", recipe.category],
-            ].map(([Icon, label, value]: any) => (
+            {quickStats.map(([Icon, label, value]) => (
               <div key={label} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
                   <Icon size={14} className="text-emerald-600" />

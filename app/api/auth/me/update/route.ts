@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { userService } from "@/lib/services/user.service";
 import { verifyAuth } from "@/lib/auth";
 import { v2 as cloudinary } from "cloudinary";
+import type { UploadApiResponse } from "cloudinary";
+import type { UpdateProfileInput } from "@/lib/validations/user";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -18,30 +20,40 @@ export async function PATCH(req: NextRequest) {
     }
 
     const contentType = req.headers.get("content-type") || "";
-    let body: any = {};
+    let body: UpdateProfileInput = {};
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
 
       body = {
-        firstName: formData.get("firstName") || "",
-        lastName: formData.get("lastName") || "",
-        email: formData.get("email") || "",
-        phoneNumber: formData.get("phoneNumber") || "",
-        age: Number(formData.get("age") || 0),
-        weight: Number(formData.get("weight") || 0),
-        height: Number(formData.get("height") || 0),
+        firstName: String(formData.get("firstName") || ""),
+        lastName: String(formData.get("lastName") || ""),
+        phoneNumber: String(formData.get("phoneNumber") || ""),
       };
+
+      const gender = String(formData.get("gender") || "");
+      const activityLevel = String(formData.get("activityLevel") || "");
+      const age = String(formData.get("age") || "");
+      const weight = String(formData.get("weight") || "");
+      const height = String(formData.get("height") || "");
+
+      if (gender) body.gender = gender as UpdateProfileInput["gender"];
+      if (activityLevel) {
+        body.activityLevel = activityLevel as UpdateProfileInput["activityLevel"];
+      }
+      if (age) body.age = Number(age);
+      if (weight) body.weight = Number(weight);
+      if (height) body.height = Number(height);
 
       const image = formData.get("image") as File | null;
 
       if (image && image.size > 0) {
         const buffer = Buffer.from(await image.arrayBuffer());
 
-        const uploaded: any = await new Promise((resolve, reject) => {
+        const uploaded = await new Promise<UploadApiResponse>((resolve, reject) => {
           cloudinary.uploader
             .upload_stream({ folder: "ceres/users" }, (error, result) => {
-              if (error) reject(error);
+              if (error || !result) reject(error || new Error("Upload failed"));
               else resolve(result);
             })
             .end(buffer);
@@ -64,9 +76,11 @@ export async function PATCH(req: NextRequest) {
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
         phoneNumber: updatedUser.phoneNumber,
+        gender: updatedUser.gender,
         weight: updatedUser.weight,
         height: updatedUser.height,
         age: updatedUser.age,
+        activityLevel: updatedUser.activityLevel,
       },
     });
   } catch (error) {

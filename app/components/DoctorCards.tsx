@@ -28,7 +28,7 @@ export default function DoctorCards() {
           className="relative flex flex-col justify-between rounded-3xl bg-white px-8 py-10 md:py-12 shadow-sm border border-gray-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
         >
           <p className="text-[15px] italic leading-relaxed max-w-[450px] text-gray-700">
-            "{doc.quote}"
+            &quot;{doc.quote}&quot;
           </p>
 
           <div className="mt-8">

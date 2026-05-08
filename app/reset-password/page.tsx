@@ -2,10 +2,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import Leftside from "../components/leftside";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
   const [email, setEmail] = useState("");
@@ -205,5 +205,17 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen w-full bg-white" />
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

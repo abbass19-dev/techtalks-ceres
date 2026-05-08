@@ -13,11 +13,18 @@ export default function SignupPage() {
     email: "",
     password: "",
     phoneNumber: "",
+    gender: "",
+    age: "",
+    height: "",
+    weight: "",
+    activityLevel: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -154,6 +161,72 @@ export default function SignupPage() {
                 className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] focus:bg-white transition-all text-gray-900 placeholder:text-gray-400 shadow-sm"
                 placeholder="81 132 465"
               />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex flex-col space-y-1.5 w-full">
+                <label htmlFor="gender" className="text-sm text-gray-700 ml-1">
+                  Gender
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] focus:bg-white transition-all text-gray-900 shadow-sm"
+                >
+                  <option value="">Optional</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col space-y-1.5 w-full">
+                <label
+                  htmlFor="activityLevel"
+                  className="text-sm text-gray-700 ml-1"
+                >
+                  Activity
+                </label>
+                <select
+                  id="activityLevel"
+                  name="activityLevel"
+                  value={formData.activityLevel}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] focus:bg-white transition-all text-gray-900 shadow-sm"
+                >
+                  <option value="">Optional</option>
+                  <option value="sedentary">Sedentary</option>
+                  <option value="light">Light</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="active">Active</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                ["age", "Age", "Years"],
+                ["height", "Height", "cm"],
+                ["weight", "Weight", "kg"],
+              ].map(([name, label, placeholder]) => (
+                <div key={name} className="flex flex-col space-y-1.5 w-full">
+                  <label htmlFor={name} className="text-sm text-gray-700 ml-1">
+                    {label}
+                  </label>
+                  <input
+                    id={name}
+                    name={name}
+                    type="number"
+                    min="1"
+                    value={formData[name as "age" | "height" | "weight"]}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] focus:bg-white transition-all text-gray-900 placeholder:text-gray-400 shadow-sm"
+                    placeholder={placeholder}
+                  />
+                </div>
+              ))}
             </div>
 
             {error ? (

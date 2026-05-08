@@ -28,6 +28,11 @@ const userSchema = new Schema(
       required: true,
       trim: true,
     },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+      required: false,
+    },
     weight: {
       type: Number,
       required: false,
@@ -38,6 +43,11 @@ const userSchema = new Schema(
     },
     age: {
       type: Number,
+      required: false,
+    },
+    activityLevel: {
+      type: String,
+      enum: ["sedentary", "light", "moderate", "active"],
       required: false,
     },
     imageUrl: {

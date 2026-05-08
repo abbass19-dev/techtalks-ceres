@@ -35,7 +35,7 @@ export default function Testimonials() {
               className="rounded-3xl border border-green-100 bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.06)]"
             >
               <p className="text-sm leading-7 text-slate-700 italic mb-6">
-                "{t.quote}"
+                &quot;{t.quote}&quot;
               </p>
 
               <div className="flex items-center gap-4">

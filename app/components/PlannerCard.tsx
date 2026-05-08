@@ -1,8 +1,9 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import type { CardItem } from "@/lib/utils/Types";
 import Image from "next/image";
+import type { CardItem } from "@/lib/utils/Types";
+
 export default function PlannerCard({
   item,
   small = false,

@@ -11,6 +11,9 @@ export type CalculatorData = {
   targetDate?: string;
 };
 
+export type UserGender = "male" | "female" | "other";
+export type ActivityLevel = "sedentary" | "light" | "moderate" | "active";
+
 export type CalculatorResults = {
   bmr: number;
   calories: number;
@@ -52,6 +55,7 @@ export interface Ingredient {
   name: string;
   quantity: string;
   unit: string;
+  selectedName?: string;
 }
 
 export interface Instruction {
@@ -77,6 +81,8 @@ export type Recipe = {
   fat: number;
   tag?: string;
   author?: string;
+  status?: "draft" | "published";
+  timeToCook?: number;
   visibility?: "public" | "private"; // ✅ OPTIONAL (good for later use)
 };
 export type NutritionTotals = {
@@ -217,6 +223,8 @@ export type UserProfile = {
   lastName: string;
   email: string;
   phoneNumber: string;
+  gender: "" | UserGender;
+  activityLevel: "" | ActivityLevel;
   age: string;
   weight: string;
   height: string;

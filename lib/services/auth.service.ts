@@ -10,7 +10,7 @@ import type {
   ResetPasswordInput,
 } from "@/lib/validations/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
+const JWT_SECRET = process.env.JWT_SECRET!;
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
 export const authService = {
@@ -43,7 +43,18 @@ export const authService = {
   },
 
   async signup(input: SignupInput) {
-    const { firstName, lastName, email, password, phoneNumber } = input;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phoneNumber,
+      gender,
+      age,
+      height,
+      weight,
+      activityLevel,
+    } = input;
     const existingUser = await userRepository.findByEmail(email);
 
     if (existingUser) {
@@ -57,6 +68,11 @@ export const authService = {
       email,
       passwordHash,
       phoneNumber,
+      gender,
+      age,
+      height,
+      weight,
+      activityLevel,
     });
 
     const token = await new SignJWT({
@@ -76,6 +92,11 @@ export const authService = {
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         phoneNumber: newUser.phoneNumber,
+        gender: newUser.gender,
+        age: newUser.age,
+        height: newUser.height,
+        weight: newUser.weight,
+        activityLevel: newUser.activityLevel,
       },
     };
   },

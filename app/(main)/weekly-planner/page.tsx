@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/app/components/Navbar";
 import DayColumn from "@/app/components/DayColumn";
 import Link from "next/link";
 import PlannerCard from "@/app/components/PlannerCard";
@@ -55,7 +54,6 @@ export default function WeeklyPlanner() {
 
   return (
   <div className="min-h-screen bg-[#f5f7fb] pb-20 sm:pb-16">
-      <Navbar />
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="min-h-screen bg-[#f5f7fb] px-3 py-4 sm:px-4 md:px-6 lg:px-8">
           <div className="mx-auto max-w-full">

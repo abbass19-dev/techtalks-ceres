@@ -2,34 +2,52 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import Ingredient from "@/lib/models/Ingredient";
 
+const escapeRegex = (text: string) =>
+  text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const normalizeIngredientName = (name: string) =>
+  name.trim().toLowerCase().replace(/\s+/g, " ");
+
 export async function GET(req: NextRequest) {
   try {
-    console.log("[FOOD_SEARCH] Connecting to database...");
     await connectToDatabase();
-    console.log("[FOOD_SEARCH] Database connected!");
 
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query")?.trim();
-
-    console.log("[FOOD_SEARCH] Query received:", query);
 
     if (!query || query.length < 2) {
       return NextResponse.json({ suggestions: [] });
     }
 
-    const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`^${safeQuery}$`, "i");
+    const safeQuery = escapeRegex(query);
+    const exactRegex = new RegExp(`^${safeQuery}$`, "i");
+    const prefixRegex = new RegExp(`^${safeQuery}`, "i");
+    const partialRegex = new RegExp(safeQuery, "i");
 
-    const results = await Ingredient.find({
-      $or: [{ name: { $regex: regex } }, { aliases: { $regex: regex } }],
+    const exactResults = await Ingredient.find({
+      $or: [{ name: exactRegex }, { aliases: exactRegex }],
+    })
+      .select("name aliases category")
+      .lean();
+
+    const fallbackRegex = query.length >= 3 ? partialRegex : prefixRegex;
+    const fallbackResults = await Ingredient.find({
+      $or: [{ name: fallbackRegex }, { aliases: fallbackRegex }],
     })
       .limit(20)
       .select("name aliases category")
       .lean();
 
-    console.log("[FOOD_SEARCH] Results found:", results.length);
-    if (results.length > 0) {
-      console.log("[FOOD_SEARCH] First result:", JSON.stringify(results[0]));
+    const seen = new Set<string>();
+    const results = [...exactResults, ...fallbackResults].filter((item) => {
+      const key = normalizeIngredientName(item.name);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    if (!results.length) {
+      return NextResponse.json({ suggestions: [] });
     }
 
     const suggestions = results.map((item) => ({

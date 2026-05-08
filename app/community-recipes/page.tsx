@@ -2,6 +2,7 @@
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Image from "next/image";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Heart } from "lucide-react";
@@ -15,6 +16,27 @@ const categories = [
   "Snacks",
   "Desserts",
 ];
+
+type SavedRecipeItem = {
+  recipeId?: {
+    _id?: string;
+  };
+};
+
+type CommunityRecipeItem = {
+  _id: string;
+  name: string;
+  imageUrl?: string;
+  category?: string;
+  timeToCook?: number;
+  user?: { name?: string };
+  nutritionPerServing?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
+};
 
 export default function CommunityRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -36,11 +58,13 @@ export default function CommunityRecipesPage() {
           const uid = userData?.user?.id;
           if (uid) {
             setUserId(uid);
-            const savedRes = await fetch(`/api/saved-recipes?userId=${uid}`);
+            const savedRes = await fetch("/api/saved-recipes");
             if (savedRes.ok) {
               const savedData = await savedRes.json();
               const ids = new Set<string>(
-                savedData.saved.map((s: any) => s.recipeId?._id?.toString())
+                ((savedData.saved || []) as SavedRecipeItem[])
+                  .map((s) => s.recipeId?._id?.toString())
+                  .filter((value): value is string => Boolean(value))
               );
               setSavedIds(ids);
             }
@@ -72,10 +96,10 @@ export default function CommunityRecipesPage() {
       await fetch("/api/saved-recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, recipeId }),
+        body: JSON.stringify({ recipeId }),
       });
     } else {
-      await fetch(`/api/saved-recipes/${recipeId}?userId=${userId}`, {
+      await fetch(`/api/saved-recipes/${recipeId}`, {
         method: "DELETE",
       });
     }
@@ -88,16 +112,16 @@ export default function CommunityRecipesPage() {
 
         const data = await res.json();
 
-        const mappedRecipes: Recipe[] = (data.recipes || []).map(
-          (item: any) => ({
+        const mappedRecipes: Recipe[] = ((data.recipes || []) as CommunityRecipeItem[]).map(
+          (item) => ({
             id: item._id,
             title: item.name,
             image: item.imageUrl,
-            calories: item.totalNutrition?.calories || 0,
-            protein: item.totalNutrition?.protein || 0,
+            calories: item.nutritionPerServing?.calories || 0,
+            protein: item.nutritionPerServing?.protein || 0,
             category: item.category,
-            carbs: item.totalNutrition?.carbs || 0,
-            fat: item.totalNutrition?.fat || 0,
+            carbs: item.nutritionPerServing?.carbs || 0,
+            fat: item.nutritionPerServing?.fat || 0,
             author: item.user?.name || "Community",
             timeToCook: item.timeToCook,
           }),
@@ -191,13 +215,15 @@ export default function CommunityRecipesPage() {
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"
               >
                 <div className="relative">
-                  {recipe.image && (
-                    <img
-                      src={recipe.image}
+                  <div className="relative h-40 w-full md:h-48">
+                    <Image
+                      src={recipe.image || "/images/recipe-placeholder.jpg"}
                       alt={recipe.title}
-                      className="w-full h-40 md:h-48 object-cover"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
                     />
-                  )}
+                  </div>
 
                   <button
                     onClick={() => handleSave(recipe.id)}

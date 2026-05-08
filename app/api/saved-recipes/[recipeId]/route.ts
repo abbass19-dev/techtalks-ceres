@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import SavedRecipe from "@/lib/models/SavedRecipe";
 import { connectToDatabase } from "@/lib/db";
+import { verifyAuth } from "@/lib/auth";
 
 export async function DELETE(
   req: NextRequest,
@@ -10,8 +11,11 @@ export async function DELETE(
     await connectToDatabase();
 
     const { recipeId } = await params;
+    const userId = await verifyAuth(req);
 
-    const userId = req.nextUrl.searchParams.get("userId");
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     await SavedRecipe.findOneAndDelete({
       userId,
@@ -19,7 +23,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to remove recipe" },
       { status: 500 }

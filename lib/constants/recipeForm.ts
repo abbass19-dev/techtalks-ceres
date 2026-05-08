@@ -11,8 +11,8 @@ export const CATEGORIES = [
 
 export const UNITS = {
   Weight: ["g", "kg"],
-  Volume: ["ml", "l", "cup"],
-  Count: ["piece", "slice"],
+  Volume: ["ml", "tsp", "tbsp", "cup"],
+  Count: ["piece", "cloves"],
 };
 
 export const createIngredient = (): Ingredient => ({
@@ -20,6 +20,7 @@ export const createIngredient = (): Ingredient => ({
   name: "",
   quantity: "",
   unit: "",
+  selectedName: "",
 });
 
 export const createInstruction = (): Instruction => ({

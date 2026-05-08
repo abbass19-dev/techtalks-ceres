@@ -4,7 +4,7 @@ import { connectToDatabase } from "@/lib/db";
 export const userRepository = {
   async findByEmail(email: string) {
     await connectToDatabase();
-    return User.findOne({ email }).exec();
+    return User.findOne({ email }).lean().exec();
   },
 
   async findByResetToken(token: string) {
@@ -12,7 +12,7 @@ export const userRepository = {
     return User.findOne({
       resetPasswordToken: token,
       resetPasswordExpires: { $gt: Date.now() },
-    }).exec();
+    }).lean().exec();
   },
 
   async create(payload: {
@@ -21,6 +21,11 @@ export const userRepository = {
     email: string;
     passwordHash: string;
     phoneNumber: string;
+    gender?: "male" | "female" | "other";
+    age?: number;
+    height?: number;
+    weight?: number;
+    activityLevel?: "sedentary" | "light" | "moderate" | "active";
   }) {
     await connectToDatabase();
     return User.create(payload);
@@ -28,11 +33,16 @@ export const userRepository = {
 
   async findById(id: string) {
     await connectToDatabase();
-    return User.findById(id).exec();
+    return User.findById(id)
+      .select(
+        "_id email firstName lastName imageUrl phoneNumber gender weight height age activityLevel",
+      )
+      .lean()
+      .exec();
   },
 
-  async updateUser(id: string, updateData: any) {
+  async updateUser(id: string, updateData: Record<string, unknown>) {
     await connectToDatabase();
-    return User.findByIdAndUpdate(id, updateData, { new: true }).exec();
+    return User.findByIdAndUpdate(id, updateData, { new: true }).lean().exec();
   },
 };

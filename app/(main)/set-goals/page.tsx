@@ -1,7 +1,4 @@
 "use client";
-
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -13,6 +10,12 @@ export default function SetGoalsPage() {
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
   const [message, setMessage] = useState("");
+  const [recommendations, setRecommendations] = useState<{
+    dailyCalories: number;
+    dailyProtein: number;
+    dailyCarbs: number;
+    dailyFat: number;
+  } | null>(null);
 
 useEffect(() => {
   async function fetchGoals() {
@@ -26,13 +29,24 @@ useEffect(() => {
         setCarbs(data.goals.dailyCarbs || "");
         setFat(data.goals.dailyFat || "");
       }
+      if (data?.recommendations) {
+        setRecommendations(data.recommendations);
+      }
     } catch (error) {
       console.error("Error fetching goals:", error);
     }
   }
 
   fetchGoals();
-}, []);
+  }, []);
+
+  const applyRecommendations = () => {
+    if (!recommendations) return;
+    setCalories(String(recommendations.dailyCalories));
+    setProtein(String(recommendations.dailyProtein));
+    setCarbs(String(recommendations.dailyCarbs));
+    setFat(String(recommendations.dailyFat));
+  };
 
   const handleSubmit = async () => {
     try {
@@ -61,8 +75,6 @@ useEffect(() => {
   return (
     <>
       <div className="bg-[#F5F7F6] min-h-screen flex flex-col pb-20">
-        <Navbar />
-
         <div className="flex-1 max-w-3xl mx-auto w-full px-4 md:px-6 lg:px-8 py-10">
           <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8 shadow-sm">
             <h1 className="text-2xl md:text-3xl font-bold text-[#111827] mb-2">
@@ -72,6 +84,24 @@ useEffect(() => {
             <p className="text-gray-500 text-sm mb-6">
               Define your daily nutrition targets to track your progress.
             </p>
+
+            {recommendations && (
+              <div className="mb-6 flex flex-col gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-emerald-900">
+                  Suggested from your profile: {recommendations.dailyCalories} kcal,
+                  {" "}{recommendations.dailyProtein}g protein,
+                  {" "}{recommendations.dailyCarbs}g carbs,
+                  {" "}{recommendations.dailyFat}g fat.
+                </p>
+                <button
+                  type="button"
+                  onClick={applyRecommendations}
+                  className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Use Suggestion
+                </button>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
@@ -145,7 +175,6 @@ useEffect(() => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

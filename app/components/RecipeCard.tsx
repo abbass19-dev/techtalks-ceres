@@ -14,7 +14,7 @@ export default function RecipeCard({ recipe }: Props) {
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-md">
       <div className="relative h-40 w-full">
         <Image
-          src={recipe.image || "/images/recipe-placeholder.jpg"}
+          src={recipe.image || "/images/salad.jpeg"}
           alt={recipe.name}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"

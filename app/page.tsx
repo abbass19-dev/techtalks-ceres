@@ -10,7 +10,7 @@ export default function LandingPage() {
       <div className="relative flex min-h-dvh flex-col">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/assets/hero.png"
+            src="/images/hero-landing.png"
             alt="Hero Background"
             fill
             priority

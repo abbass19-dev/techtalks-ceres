@@ -4,7 +4,7 @@ export default function Leftside() {
   return (
     <div className="hidden lg:flex lg:w-1/2 relative bg-[#006c49] overflow-hidden">
       <Image
-        src="/assets/Leftside.png"
+        src="/images/Leftside.png"
         alt="Healthy"
         fill
         priority

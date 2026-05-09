@@ -22,7 +22,7 @@ const categories = [
 const RECIPES_PER_PAGE = 9;
 
 const getCardImageUrl = (image?: string) => {
-  if (!image) return "/images/recipe-placeholder.jpg";
+  if (!image) return "/images/salad.jpeg";
   if (!image.includes("res.cloudinary.com") || !image.includes("/upload/")) {
     return image;
   }
@@ -250,7 +250,7 @@ export default function CommunityRecipesPage() {
                       <Image
                         src={
                           brokenImageIds.has(recipe.id)
-                            ? "/images/recipe-placeholder.jpg"
+                            ? "/images/salad.jpeg"
                             : getCardImageUrl(recipe.image)
                         }
                         alt={recipe.title}

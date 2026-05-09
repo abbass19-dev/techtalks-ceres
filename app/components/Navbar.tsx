@@ -30,11 +30,14 @@ export default function Navbar() {
   const primaryLinks = links.slice(0, 4);
   const moreLinks = links.slice(4);
 
+  const getUserImage = (img?: string) =>
+    img && img.trim() ? img : "/images/default-user.png";
+
   const displayUser = user || {
     firstName: "",
     lastName: "",
     email: "",
-    image: "/images/logo.png",
+    image: "/images/default-user.png",
   };
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function Navbar() {
           firstName: data.user.firstName,
           lastName: data.user.lastName,
           email: data.user.email,
-          image: data.user.imageUrl || "/images/salad.jpeg",
+        image: getUserImage(data.user.imageUrl),
         });
       })
       .catch(() => {});
@@ -150,10 +153,12 @@ export default function Navbar() {
                 <Image
                   src={displayUser.image}
                   alt={displayUser.firstName || "User"}
-                  width={10}
-                  height={10}
-                  className={`rounded-full object-cover transition-all duration-300
-  ${scrolled ? "h-8 w-8" : "h-8 w-8"}`}
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-full object-cover object-center"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/default-user.png";
+                  }}
                 />
                 {!scrolled && (
                   <>
@@ -260,9 +265,12 @@ export default function Navbar() {
               <Image
                 src={displayUser.image}
                 alt={displayUser.firstName || "User"}
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-full object-cover"
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-full object-cover object-center"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/default-user.png";
+                }}
               />
 
               <div className="min-w-0">

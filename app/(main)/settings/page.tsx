@@ -194,7 +194,7 @@ export default function SettingsPage() {
     ["height", "HEIGHT", "cm"],
   ];
   //add default image for user:
-  const displaySrc = previewUrl || user.imageUrl || "/images/logo.png";
+  const displaySrc = previewUrl || user.imageUrl || "/images/default-user.png";
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">

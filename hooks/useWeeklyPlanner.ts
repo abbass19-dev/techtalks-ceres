@@ -74,7 +74,7 @@ useEffect(() => {
             : Math.round((r.totalNutrition?.protein || 0) / (r.servings || 1)),
           time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
           minutes: (r.prepTime || 0) + (r.cookTime || 0),
-          image: r.imageUrl || r.image || "/images/recipe-placeholder.jpg",
+          image: r.imageUrl || r.image || "/images/salad.jpeg",
         }));
 
         setRecipes(mappedRecipes);

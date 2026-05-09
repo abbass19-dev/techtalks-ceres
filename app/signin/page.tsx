@@ -77,7 +77,7 @@ export default function SigninPage() {
                 id="email"
                 type="email"
                 required
-                className="w-full px-5 py-4 bg-gray-50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859]"
+                className="w-full px-5 py-4 bg-gray-50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] text-gray-900 placeholder:text-gray-400"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -97,7 +97,7 @@ export default function SigninPage() {
                 id="password"
                 type="password"
                 required
-                className="w-full px-5 py-4 bg-gray-50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859]"
+                className="w-full px-5 py-4 bg-gray-50 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[#00A859] text-gray-900 placeholder:text-gray-400"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />

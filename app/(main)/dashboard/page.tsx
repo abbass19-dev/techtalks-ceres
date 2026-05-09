@@ -102,11 +102,11 @@ export default function DashboardPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <button
-              onClick={() => router.push("/analyze-meal")}
+              onClick={() => router.push("/add-recipe")}
               className="bg-[#00A859] hover:bg-[#00964D] text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-sm transition flex items-center justify-center gap-2"
             >
               <Plus size={18} />
-              Analyze New Meal
+              Add Recipe
             </button>
             <Link
               href="/set-goals"

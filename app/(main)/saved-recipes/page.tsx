@@ -2,7 +2,7 @@
 import CardItem from "../../components/CardItem";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
-import { Recipe } from "@/lib/utils/Types";
+import { Recipe, SavedRecipeApiItem } from "@/lib/utils/Types";
 import {
   Search,
   Sunrise,
@@ -13,25 +13,6 @@ import {
   IceCream,
   Loader,
 } from "lucide-react";
-
-type SavedRecipeItem = {
-  recipeId?: {
-    _id: string;
-    name: string;
-    imageUrl?: string;
-    category?: string;
-    prepTime?: number;
-    cookTime?: number;
-    timeToCook?: number;
-    user?: { name?: string };
-    nutritionPerServing?: {
-      calories?: number;
-      protein?: number;
-      carbs?: number;
-      fat?: number;
-    };
-  };
-};
 
 function SavedRecipesPage() {
   const [search, setSearch] = useState("");
@@ -56,7 +37,7 @@ function SavedRecipesPage() {
 
         const data = await res.json();
 
-        const mappedRecipes: Recipe[] = ((data.saved || []) as SavedRecipeItem[])
+        const mappedRecipes: Recipe[] = ((data.saved || []) as SavedRecipeApiItem[])
           .map((s) => {
             const item = s.recipeId;
             if (!item) return null;

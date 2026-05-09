@@ -4,6 +4,7 @@ import { verifyAuth } from "@/lib/auth";
 import { v2 as cloudinary } from "cloudinary";
 import type { UploadApiResponse } from "cloudinary";
 import type { UpdateProfileInput } from "@/lib/validations/user";
+import { ZodError } from "zod";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -25,11 +26,16 @@ export async function PATCH(req: NextRequest) {
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
 
-      body = {
-        firstName: String(formData.get("firstName") || ""),
-        lastName: String(formData.get("lastName") || ""),
-        phoneNumber: String(formData.get("phoneNumber") || ""),
+      const setTextField = (key: keyof UpdateProfileInput) => {
+        const value = formData.get(key);
+        if (typeof value === "string" && value.trim()) {
+          body[key] = value.trim() as never;
+        }
       };
+
+      setTextField("firstName");
+      setTextField("lastName");
+      setTextField("phoneNumber");
 
       const gender = String(formData.get("gender") || "");
       const activityLevel = String(formData.get("activityLevel") || "");
@@ -45,9 +51,9 @@ export async function PATCH(req: NextRequest) {
       if (weight) body.weight = Number(weight);
       if (height) body.height = Number(height);
 
-      const image = formData.get("image") as File | null;
+      const image = formData.get("image");
 
-      if (image && image.size > 0) {
+      if (image instanceof File && image.size > 0) {
         const buffer = Buffer.from(await image.arrayBuffer());
 
         const uploaded = await new Promise<UploadApiResponse>((resolve, reject) => {
@@ -84,7 +90,19 @@ export async function PATCH(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error("PROFILE_UPDATE_ERROR:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Invalid profile data", details: error.flatten().fieldErrors },
+        { status: 400 },
+      );
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

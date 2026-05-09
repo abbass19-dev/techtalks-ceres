@@ -72,6 +72,7 @@ export type FoodSuggestion = {
 
 export type Recipe = {
   id: string;
+  userId?: string;
   title: string;
   image?: string;
   calories: number;
@@ -85,6 +86,50 @@ export type Recipe = {
   timeToCook?: number;
   visibility?: "public" | "private"; // ✅ OPTIONAL (good for later use)
 };
+
+export type RecipeCardApiItem = {
+  _id: string;
+  userId?: string;
+  name: string;
+  imageUrl?: string;
+  category?: string;
+  prepTime?: number;
+  cookTime?: number;
+  timeToCook?: number;
+  user?: { name?: string };
+  nutritionPerServing?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
+};
+
+export type SavedRecipeApiItem = {
+  recipeId?: RecipeCardApiItem;
+};
+
+export type CommunityRecipesResponse = {
+  recipes?: RecipeCardApiItem[];
+  pagination?: {
+    page?: number;
+    limit?: number;
+    hasMore?: boolean;
+    nextPage?: number | null;
+  };
+  error?: string;
+};
+
+export type CommunityRecipeDocument = Omit<RecipeCardApiItem, "_id"> & {
+  _id: unknown;
+};
+
+export type CommunityUserDocument = {
+  _id: unknown;
+  firstName?: string;
+  lastName?: string;
+};
+
 export type NutritionTotals = {
   calories: number;
   protein: number;
@@ -120,6 +165,7 @@ export type RecipeInstruction = {
 
 export type DashboardMeal = {
   _id: string;
+  userId?: string;
   name: string;
   description?: string;
   imageUrl?: string;

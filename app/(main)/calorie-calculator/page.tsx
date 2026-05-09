@@ -56,9 +56,25 @@ export default function CalorieCalculatorPage() {
       return;
     }
 
-    if (age <= 0 || height <= 0 || weight <= 0) {
+    if (
+      !Number.isFinite(age) ||
+      !Number.isFinite(height) ||
+      !Number.isFinite(weight) ||
+      age <= 0 ||
+      height <= 0 ||
+      weight <= 0
+    ) {
       setResult(null);
       setError("Please enter valid numbers.");
+      return;
+    }
+
+    if (
+      goalWeight !== undefined &&
+      (!Number.isFinite(goalWeight) || goalWeight <= 0)
+    ) {
+      setResult(null);
+      setError("Please enter a valid goal weight.");
       return;
     }
 
@@ -111,16 +127,6 @@ export default function CalorieCalculatorPage() {
 
     setResult(results);
     setError("");
-    if (formData.targetDate) {
-      const selected = new Date(formData.targetDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selected < today) {
-        setError("Date must be today or in the future");
-        return;
-      }
-    }
   };
 
   return (
@@ -201,13 +207,13 @@ export default function CalorieCalculatorPage() {
                       value={formData.age}
                       onChange={handleChange}
                       inputMode="numeric"
-                      maxLength={2}
+                      maxLength={3}
                       placeholder="Enter your age"
                       className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100 placeholder:text-slate-400"
                       onInput={(e) => {
                         e.currentTarget.value = e.currentTarget.value
                           .replace(/\D/g, "")
-                          .slice(0, 2);
+                          .slice(0, 3);
                       }}
                     />
                   </div>

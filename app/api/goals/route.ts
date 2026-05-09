@@ -5,7 +5,11 @@ import UserGoal from "@/lib/models/UserGoal";
 import { userRepository } from "@/lib/repositories/user.repository";
 import { getRecommendedGoals } from "@/lib/utils/goalRecommendations";
 
-const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
 async function getUserId(req: NextRequest) {

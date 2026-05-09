@@ -6,7 +6,12 @@ import Recipe from "@/lib/models/Recipe";
 import { Types } from "mongoose";
 import { calculateNutrientPercentages } from "@/lib/utils/nutrientCalculator";
 import { NutritionTotals, UserNutrientTotals } from "@/lib/utils/Types";
-const JWT_SECRET = process.env.JWT_SECRET || "default_development_secret";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
 const encodedSecret = new TextEncoder().encode(JWT_SECRET);
 
 export async function GET(req: NextRequest) {

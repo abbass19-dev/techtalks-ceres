@@ -108,14 +108,19 @@ export const authService = {
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetPasswordExpires = new Date(Date.now() + 3600000);
+    const resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     await userRepository.updateUser(user._id.toString(), {
       resetPasswordToken: resetToken,
       resetPasswordExpires,
     });
 
-    const resetLink = `${process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${encodeURIComponent(resetToken)}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      throw new Error("NEXT_PUBLIC_APP_URL is not configured");
+    }
+
+    const resetLink = `${appUrl.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(resetToken)}`;
     const emailResult = await sendResetPasswordEmail(
       user.email,
       resetLink,

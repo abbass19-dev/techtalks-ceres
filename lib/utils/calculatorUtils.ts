@@ -1,4 +1,4 @@
-import { CalculatorData, CalculatorResults } from "./Types";
+import type { CalculatorData, CalculatorResults } from "./Types";
 
 export const ACTIVITY_MAP: Record<string, number> = {
   sedentary: 1.2,
@@ -7,72 +7,72 @@ export const ACTIVITY_MAP: Record<string, number> = {
   active: 1.725,
 };
 
-export function calculateCalories({
-  gender,
-  age,
-  height,
-  weight,
-  activity,
-  goal,
-  goalWeight,
-  targetDate,
-}: CalculatorData): CalculatorResults {
-  let bmr = 0;
+const MS_PER_DAY = 86_400_000;
+const CALORIES_PER_KG = 7_700;
 
-  if (gender === "male") {
-    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-  } else {
-    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+const DEFAULT_ADJUSTMENT = {
+  lose: -500,
+  gain: 300,
+  maintain: 0,
+} as const;
+
+const MAX_WEEKLY_CHANGE = {
+  lose: 0.9,
+  gain: 0.5,
+} as const;
+
+const getDaysUntilTarget = (targetDate?: string) => {
+  if (!targetDate) return 0;
+
+  const today = new Date();
+  const target = new Date(targetDate);
+
+  if (Number.isNaN(target.getTime())) return 0;
+
+  today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+
+  return Math.ceil((target.getTime() - today.getTime()) / MS_PER_DAY);
+};
+
+const calculateBmr = ({ gender, age, height, weight }: CalculatorData) => {
+  const base = 10 * weight + 6.25 * height - 5 * age;
+  return gender === "male" ? base + 5 : base - 161;
+};
+
+const getGoalAdjustment = (data: CalculatorData) => {
+  const { goal, weight, goalWeight, targetDate } = data;
+
+  if (goal === "maintain") return 0;
+
+  const days = getDaysUntilTarget(targetDate);
+  const targetWeight = goalWeight ?? weight;
+  const weightChange =
+    goal === "lose" ? weight - targetWeight : targetWeight - weight;
+
+  if (days <= 0 || weightChange <= 0) {
+    return DEFAULT_ADJUSTMENT[goal];
   }
 
-  const maintenanceCalories = bmr * (ACTIVITY_MAP[activity] || 1.2);
+  const requestedDailyChange = (weightChange * CALORIES_PER_KG) / days;
+  const maxDailyChange = (MAX_WEEKLY_CHANGE[goal] * CALORIES_PER_KG) / 7;
+  const safeDailyChange = Math.min(requestedDailyChange, maxDailyChange);
 
-  let goalCalories = maintenanceCalories;
-  let floorHit = false;
+  return goal === "lose" ? -safeDailyChange : safeDailyChange;
+};
 
-  const minCalories = gender === "male" ? 1500 : 1200;
+export function calculateCalories(data: CalculatorData): CalculatorResults {
+  const bmr = calculateBmr(data);
+  const maintenanceCalories =
+    bmr * (ACTIVITY_MAP[data.activity] ?? ACTIVITY_MAP.sedentary);
 
-  if (goal === "lose") {
-    if (goalWeight && targetDate) {
-      const MS_PER_DAY = 1000 * 60 * 60 * 24;
-      const today = new Date();
-      const target = new Date(targetDate);
+  let goalCalories = maintenanceCalories + getGoalAdjustment(data);
 
-      const days = Math.ceil(
-        (target.getTime() - today.getTime()) / MS_PER_DAY
-      );
+  const minCalories = data.gender === "male" ? 1500 : 1200;
+  const floorHit = goalCalories < minCalories;
 
-      const weightToLose = weight - goalWeight;
-
-      if (days > 0 && weightToLose > 0) {
-        const weeks = days / 7;
-
-        const kgPerWeekNeeded = weightToLose / weeks;
-
-        const healthyMinKgPerWeek = 0.25; // about 0.5 lb/week
-        const healthyMaxKgPerWeek = 0.9;  // about 2 lb/week
-
-        const cappedKgPerWeek = Math.min(
-          healthyMaxKgPerWeek,
-          Math.max(healthyMinKgPerWeek, kgPerWeekNeeded)
-        );
-
-        const dailyDeficit = (cappedKgPerWeek * 7700) / 7;
-
-        goalCalories = maintenanceCalories - dailyDeficit;
-      } else {
-        goalCalories = maintenanceCalories - 500;
-      }
-    } else {
-      goalCalories = maintenanceCalories - 500;
-    }
-  } else if (goal === "gain") {
-    goalCalories = maintenanceCalories + 300;
-  }
-
-  if (goalCalories < minCalories) {
+  if (floorHit) {
     goalCalories = minCalories;
-    floorHit = true;
   }
 
   return {

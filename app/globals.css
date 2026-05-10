@@ -28,3 +28,17 @@ body {
 @utility field-input {
   @apply w-full rounded-xl border border-slate-200 bg-[#F8FAF9] px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-[#006C49] focus:bg-white;
 }
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-22px) rotate(4deg);
+  }
+}
+
+.animate-float {
+  animation: float 4.5s ease-in-out infinite;
+}

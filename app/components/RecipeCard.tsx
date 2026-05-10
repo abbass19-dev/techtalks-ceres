@@ -1,4 +1,4 @@
-import Image from "next/image";
+import RecipeImage from "./RecipeImage";
 
 type Props = {
   recipe: {
@@ -13,7 +13,7 @@ export default function RecipeCard({ recipe }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-md">
       <div className="relative h-40 w-full">
-        <Image
+        <RecipeImage
           src={recipe.image || "/images/salad.jpeg"}
           alt={recipe.name}
           fill

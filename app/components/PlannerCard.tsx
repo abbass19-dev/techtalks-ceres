@@ -1,8 +1,8 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import Image from "next/image";
 import type { CardItem } from "@/lib/utils/Types";
+import RecipeImage from "./RecipeImage";
 
 export default function PlannerCard({
   item,
@@ -43,7 +43,7 @@ export default function PlannerCard({
     >
       <div className="flex gap-2.5">
         {!scheduled && item.image && (
-          <Image
+          <RecipeImage
             src={item.image}
             alt={item.title}
             width={64}

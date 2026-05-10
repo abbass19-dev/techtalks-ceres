@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import {
   AlertCircle,
   CheckCircle2,
@@ -22,6 +21,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import { DashboardMeal } from "@/lib/utils/Types";
+import RecipeImage from "@/app/components/RecipeImage";
 
 const round = (v?: number, d = 0) =>
   d === 0 ? Math.round(v ?? 0) : +(v ?? 0).toFixed(d);
@@ -180,17 +180,15 @@ export default function RecipeDetailsPage() {
   return (
     <main className="min-h-screen bg-[#F7F6F2]">
       <section className="relative w-full h-52 md:h-[500px] overflow-hidden bg-stone-900 ">
-        {recipe.imageUrl && (
-          <Image
-            src={recipe.imageUrl}
-            alt={recipe.name}
-            fill
-            priority
-            loading="eager"
-            quality={75}
-            className="object-cover object-center scale-[1] sm:scale-[1] md:object-[center_45%]"
-          />
-        )}
+        <RecipeImage
+          src={recipe.imageUrl}
+          alt={recipe.name}
+          fill
+          priority
+          loading="eager"
+          quality={75}
+          className="object-cover object-center scale-[1] sm:scale-[1] md:object-[center_45%]"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
 
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 flex items-end justify-between gap-4">

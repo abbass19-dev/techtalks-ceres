@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, Loader2, Search } from "lucide-react";
@@ -9,6 +8,7 @@ import {
   Recipe,
   SavedRecipeApiItem,
 } from "@/lib/utils/Types";
+import RecipeImage from "@/app/components/RecipeImage";
 
 const categories = [
   "All Recipes",
@@ -38,7 +38,6 @@ export default function CommunityRecipesPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [brokenImageIds, setBrokenImageIds] = useState<Set<string>>(new Set());
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [userId, setUserId] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -247,24 +246,13 @@ export default function CommunityRecipesPage() {
                 >
                   <div className="relative">
                     <div className="relative h-40 w-full md:h-48">
-                      <Image
-                        src={
-                          brokenImageIds.has(recipe.id)
-                            ? "/images/salad.jpeg"
-                            : getCardImageUrl(recipe.image)
-                        }
+                      <RecipeImage
+                        src={getCardImageUrl(recipe.image)}
                         alt={recipe.title}
                         fill
                         priority={isPriorityImage}
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover"
-                        onError={() =>
-                          setBrokenImageIds((prev) => {
-                            const next = new Set(prev);
-                            next.add(recipe.id);
-                            return next;
-                          })
-                        }
                       />
                     </div>
 

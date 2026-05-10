@@ -6,7 +6,7 @@ import { getCurrentWeek, filterCards, getUnscheduledCards, moveCard, removeCard 
 type PlannerRecipe = {
   _id: string;
   name: string;
-  category: string;
+  category?: string;
   prepTime?: number;
   cookTime?: number;
   imageUrl?: string;
@@ -19,6 +19,32 @@ type PlannerRecipe = {
   totalNutrition?: {
     calories?: number;
     protein?: number;
+  };
+};
+
+type SavedPlannerRecipe = {
+  recipeId?: PlannerRecipe;
+};
+
+const mapRecipeToPlannerCard = (recipe: PlannerRecipe): CardItem => {
+  const servings = recipe.servings || 1;
+  const calories =
+    recipe.nutritionPerServing?.calories ??
+    (recipe.totalNutrition?.calories || 0) / servings;
+  const protein =
+    recipe.nutritionPerServing?.protein ??
+    (recipe.totalNutrition?.protein || 0) / servings;
+  const minutes = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+
+  return {
+    id: recipe._id,
+    title: recipe.name,
+    category: recipe.category || "Recipe",
+    calories: Math.round(calories),
+    protein: Math.round(protein),
+    time: `${minutes} min`,
+    minutes,
+    image: recipe.imageUrl || recipe.image || "/images/salad.jpeg",
   };
 };
 
@@ -47,9 +73,10 @@ useEffect(() => {
     setIsLoading(true);
 
     try {
-      const [plannerRes, recipesRes] = await Promise.all([
+      const [plannerRes, recipesRes, savedRecipesRes] = await Promise.all([
         fetch("/api/planner"),
         fetch("/api/recipes/user"),
+        fetch("/api/saved-recipes"),
       ]);
 
       if (plannerRes.ok) {
@@ -58,27 +85,29 @@ useEffect(() => {
       }
 
       if (!recipesRes.ok) throw new Error("Failed to fetch user recipes");
+      if (!savedRecipesRes.ok) throw new Error("Failed to fetch saved recipes");
 
       const recipesData = await recipesRes.json();
+      const savedRecipesData = await savedRecipesRes.json();
 
-      if (recipesData.recipes) {
-        const mappedRecipes: CardItem[] = (recipesData.recipes as PlannerRecipe[]).map((r) => ({
-          id: r._id,
-          title: r.name,
-          category: r.category,
-          calories: r.nutritionPerServing?.calories
-            ? Math.round(r.nutritionPerServing.calories)
-            : Math.round((r.totalNutrition?.calories || 0) / (r.servings || 1)),
-          protein: r.nutritionPerServing?.protein
-            ? Math.round(r.nutritionPerServing.protein)
-            : Math.round((r.totalNutrition?.protein || 0) / (r.servings || 1)),
-          time: `${(r.prepTime || 0) + (r.cookTime || 0)} min`,
-          minutes: (r.prepTime || 0) + (r.cookTime || 0),
-          image: r.imageUrl || r.image || "/images/salad.jpeg",
-        }));
+      const userRecipes = (recipesData.recipes || []) as PlannerRecipe[];
+      const savedRecipes = ((savedRecipesData.saved || []) as SavedPlannerRecipe[])
+        .map((item) => item.recipeId)
+        .filter((recipe): recipe is PlannerRecipe => Boolean(recipe));
 
-        setRecipes(mappedRecipes);
-      }
+      const mappedRecipes = [...userRecipes, ...savedRecipes].reduce<CardItem[]>(
+        (cards, recipe) => {
+          if (!recipe._id || cards.some((card) => card.id === recipe._id)) {
+            return cards;
+          }
+
+          cards.push(mapRecipeToPlannerCard(recipe));
+          return cards;
+        },
+        [],
+      );
+
+      setRecipes(mappedRecipes);
 
       
     } catch (error) {

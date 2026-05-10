@@ -195,6 +195,11 @@ export default function SettingsPage() {
   ];
   //add default image for user:
   const displaySrc = previewUrl || user.imageUrl || "/images/default-user.png";
+  const handleProfileImageError = () => {
+    if (previewUrl) return;
+    setUser((current) => ({ ...current, imageUrl: "" }));
+    setDraft((current) => ({ ...current, imageUrl: "" }));
+  };
 
   return (
     <div className="min-h-screen bg-[#f4f6fb]">
@@ -231,7 +236,9 @@ export default function SettingsPage() {
                   alt="Profile"
                   fill
                   sizes="96px"
+                  unoptimized
                   className="object-cover"
+                  onError={handleProfileImageError}
                 />
                 {edit && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">

@@ -85,6 +85,14 @@ export default function Navbar() {
     router.refresh();
   };
 
+  const handleProfileImageError = () => {
+    setUser((current) =>
+      current
+        ? { ...current, image: "/images/default-user.png" }
+        : current,
+    );
+  };
+
   const isActive = (href: string) => pathname === href;
 
   return (
@@ -155,10 +163,9 @@ export default function Navbar() {
                   alt={displayUser.firstName || "User"}
                   width={44}
                   height={44}
+                  unoptimized
                   className="h-11 w-11 rounded-full object-cover object-center"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/images/default-user.png";
-                  }}
+                  onError={handleProfileImageError}
                 />
                 {!scrolled && (
                   <>
@@ -267,10 +274,9 @@ export default function Navbar() {
                 alt={displayUser.firstName || "User"}
                 width={56}
                 height={56}
+                unoptimized
                 className="h-14 w-14 rounded-full object-cover object-center"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/images/default-user.png";
-                }}
+                onError={handleProfileImageError}
               />
 
               <div className="min-w-0">

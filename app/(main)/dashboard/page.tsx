@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Plus, Lightbulb, Trash2, AlertTriangle, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -10,6 +9,7 @@ import { dayName } from "@/lib/utils/plannerUtils";
 import { getNutrientColor } from "@/lib/utils/nutrientCalculator";
 import { EMPTY_TOTALS, STAT_STYLES, DEFAULT_GOALS, buildBalance, buildStats, getDailyRandomTip } from "@/lib/constants/dashboard";
 import type { NutritionTotals, BalanceItem, StatItem } from "@/lib/utils/Types";
+import RecipeImage from "@/app/components/RecipeImage";
 
 
 export default function DashboardPage() {
@@ -41,7 +41,7 @@ export default function DashboardPage() {
             firstName: data.user.firstName,
             lastName: data.user.lastName,
             email: data.user.email,
-            image: data.user.image || "/images/logo.png",
+            image: data.user.imageUrl || "/images/default-user.png",
           });
         }
       })
@@ -300,10 +300,10 @@ export default function DashboardPage() {
                       className="flex items-center justify-between py-3 border-b last:border-none"
                     >
                       <div className="flex items-center gap-3">
-                        <Image
+                        <RecipeImage
                           width={40}
                           height={40}
-                          src={meal.imageUrl || "/images/logo.png"}
+                          src={meal.imageUrl}
                           alt={meal.name}
                           className="rounded-lg object-cover"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

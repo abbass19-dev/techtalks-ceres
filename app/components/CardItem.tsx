@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { Clock, Eye, FileText, Flame, Lock, Utensils } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Recipe } from "@/lib/utils/Types";
+import RecipeImage from "./RecipeImage";
 
 function formatMacro(value: number) {
   return Number(value || 0).toFixed(value % 1 === 0 ? 0 : 1);
@@ -29,7 +29,7 @@ function CardItem({
       onClick={() => router.push(targetHref)}
     >
       <div className="relative h-48 w-full overflow-hidden bg-slate-100">
-        <Image
+        <RecipeImage
           src={recipe.image || "/images/salad.jpeg"}
           alt={recipe.title}
           fill

@@ -37,7 +37,7 @@ CERES is a full-stack nutrition and meal-planning web application that helps use
 ## 🔎 Overview
 
 <p align="center">
-  <img src="public/images/readme-hero.png" alt="CERES hero section" width="100%" />
+  <img src="public/images/readme-banner.png" alt="CERES application banner" width="100%" />
 </p>
 
 CERES helps users understand what they eat and plan healthier meals with more confidence. The platform enables:
@@ -59,6 +59,12 @@ CERES bridges that gap by:
 - 🗓️ **Supporting consistency** - Weekly planning helps users prepare instead of improvising every day
 - 🧾 **Centralizing meal history** - Saved and personal recipes stay attached to the user's account
 - ✨ **Providing a polished food experience** - Landing pages, recipe cards, dashboards, and app routes are built around a focused nutrition workflow
+
+## 🖼️ App Preview
+
+<p align="center">
+  <img src="public/images/readme-hero.png" alt="CERES nutrition platform banner" width="100%" />
+</p>
 
 
 ## ✨ Features

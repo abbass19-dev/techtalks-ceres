@@ -1,12 +1,84 @@
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import ProcessCards from "./components/ProcessCards";
 import DoctorCards from "./components/DoctorCards";
 import Footer from "./components/Footer";
+import { siteDescription, siteName, siteTitle, siteUrl } from "@/lib/seo";
+
+const faqs = [
+  {
+    question: "What is CÉRES?",
+    answer:
+      "CÉRES is a precision nutrition platform for creating recipes, calculating nutrients, planning meals, and tracking health goals.",
+  },
+  {
+    question: "Is CÉRES free to use?",
+    answer:
+      "CÉRES lets users get started with core nutrition and meal-planning features. Additional limits or premium features may depend on your account plan.",
+  },
+  {
+    question: "Can I create recipes?",
+    answer:
+      "Yes. You can create recipes by adding ingredients and quantities, then save them for future planning and tracking.",
+  },
+  {
+    question: "Can I plan meals weekly?",
+    answer:
+      "Yes. CÉRES includes weekly meal-planning tools that help organize meals across the week.",
+  },
+  {
+    question: "Does CÉRES calculate nutrition automatically?",
+    answer:
+      "Yes. CÉRES calculates nutrition details from recipe ingredients to help users understand calories, macronutrients, and other nutrient data.",
+  },
+];
 
 export default function LandingPage() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: siteName,
+        headline: siteTitle,
+        description: siteDescription,
+        inLanguage: "en",
+      },
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: siteName,
+        url: siteUrl,
+        logo: `${siteUrl}/images/logo.png`,
+        description: siteDescription,
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${siteUrl}/#faq`,
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-[#f4f8fb] font-sans">
+      <Script
+        id="ceres-structured-data"
+        type="application/ld+json"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       <div className="relative flex min-h-dvh flex-col">
         <div className="absolute inset-0 z-0">
           <Image
@@ -101,6 +173,39 @@ export default function LandingPage() {
           </div>
         </div>
         <DoctorCards />
+      </section>
+
+      <section className="relative z-10 w-full bg-[#f4f8fb] px-8 pt-12 pb-28 md:px-3">
+        <div className="mx-auto max-w-360">
+          <div className="mb-10 flex flex-col gap-3">
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#006C49]">
+              FAQ
+            </p>
+            <h2 className="text-3xl font-bold tracking-tight text-[#111827] md:text-[2.2rem]">
+              Common Questions
+            </h2>
+            <p className="max-w-140 text-[15px] font-medium leading-relaxed text-gray-700">
+              Learn how CÉRES supports recipe creation, meal planning, and
+              nutrition tracking.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {faqs.map((faq) => (
+              <article
+                key={faq.question}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              >
+                <h3 className="text-lg font-bold text-[#111827]">
+                  {faq.question}
+                </h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-gray-600">
+                  {faq.answer}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       <Footer />

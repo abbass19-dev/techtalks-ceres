@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { siteDescription, siteName } from "@/lib/seo";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CERES",
-    short_name: "CERES",
-    description: "CERES - Your Digital Apothecary",
+    name: siteName,
+    short_name: siteName,
+    description: siteDescription,
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",
